@@ -17,14 +17,14 @@ module tb_Top;
 
         //start inspecting result
         $display("\n========== FIBONACCI TEST RESULTS ==========");
-        check_reg(1, 32'd5);
-        check_reg(2, 32'd10);
-        check_reg(3, 32'd1);          // SLT TRUE
-        check_reg(4, 32'd0);          // SLT FALSE
-        check_reg(5, 32'hffffffff);   // -1
-        check_reg(6, 32'd1);          // signed -1 < 5
-        check_reg(7, 32'd1);          // SLTI TRUE
-        check_reg(8, 32'd0);          // SLTI FALSE
+        check_reg(1, 32'd1);
+        check_reg(2, 32'd16);
+        check_reg(3, 32'hfffffff0);   // -16
+        check_reg(4, 32'h3ffffffc);   // 邏輯右移
+        check_reg(5, 32'hfffffffc);   // 算術右移 = -4
+        check_reg(6, 32'd3);
+        check_reg(7, 32'd8);
+        check_reg(8, 32'd2);
         $display("============================================\n");
 
         $finish;

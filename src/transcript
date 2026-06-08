@@ -901,3 +901,377 @@ run -all
 #    Time: 5025 ns  Iteration: 1  Instance: /tb_Top
 # 1
 # Break in Module tb_Top at tb_Top.sv line 30
+# Compile of alu.sv was successful with warnings.
+# Compile of arat.sv was successful with warnings.
+# Compile of decode.sv was successful with warnings.
+# Compile of fetch.sv was successful with warnings.
+# Compile of free_list.sv was successful with warnings.
+# Compile of imem.sv was successful with warnings.
+# Compile of prf.sv was successful with warnings.
+# Compile of rat.sv was successful with warnings.
+# Compile of rename_stage.sv was successful with warnings.
+# Compile of riscv_pkg.sv was successful.
+# Compile of rob.sv was successful with warnings.
+# Compile of rs.sv was successful with warnings.
+# Compile of tb_Top.sv was successful.
+# Compile of Top.sv was successful with warnings.
+# 14 compiles, 0 failed with no errors.
+vsim -c tb_Top
+# End time: 22:57:09 on Jun 08,2026, Elapsed time: 1:10:56
+# Errors: 0, Warnings: 2
+# vsim -c tb_Top 
+# Start time: 22:57:10 on Jun 08,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# ** Error: (vsim-13) Recompile work.fetch_sv_unit because work.riscv_pkg has changed.
+# ** Error (suppressible): (vsim-12) Recompile work.fetch after work.fetch_sv_unit is recompiled.
+# ** Error: (vsim-13) Recompile work.fetch because work.riscv_pkg has changed.
+# Error loading design
+# End time: 22:57:10 on Jun 08,2026, Elapsed time: 0:00:00
+# Errors: 3, Warnings: 1
+vlog -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 22:57:14 on Jun 08,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# ** Warning: imem.sv(1): (vlog-13233) Design unit "imem_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# ** Warning: fetch.sv(1): (vlog-13233) Design unit "fetch_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# ** Warning: decode.sv(1): (vlog-13233) Design unit "decode_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rat.sv(2): (vlog-13233) Design unit "rat_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: arat.sv(1): (vlog-13233) Design unit "arat_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: free_list.sv(1): (vlog-13233) Design unit "free_list_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(1): (vlog-13233) Design unit "rename_stage_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: prf.sv(1): (vlog-13233) Design unit "prf_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(1): (vlog-13233) Design unit "rs_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(1): (vlog-13233) Design unit "rob_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: alu.sv(1): (vlog-13233) Design unit "alu_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# ** Warning: Top.sv(1): (vlog-13233) Design unit "Top_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 22:57:14 on Jun 08,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 26
+vsim -c tb_Top
+# vsim -c tb_Top 
+# Start time: 22:57:19 on Jun 08,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+run -all
+# resetn released, system start at 25000
+# 
+# ========== FIBONACCI TEST RESULTS ==========
+# lgc_addr 1 = 5,PASS
+# lgc_addr 2 = 10,PASS
+# lgc_addr 3 = 1,PASS
+# lgc_addr 4 = 0,PASS
+# lgc_addr 5 = 4294967295,PASS
+# lgc_addr 6 = 1,PASS
+# lgc_addr 7 = 1,PASS
+# lgc_addr 8 = 0,PASS
+# ============================================
+# 
+# ** Note: $finish    : tb_Top.sv(30)
+#    Time: 5025 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 30
+vlog -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 23:12:45 on Jun 08,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 23:12:45 on Jun 08,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 14
+vsim -c tb_Top
+# End time: 23:12:50 on Jun 08,2026, Elapsed time: 0:15:31
+# Errors: 0, Warnings: 1
+# vsim -c tb_Top 
+# Start time: 23:12:50 on Jun 08,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+run -all
+# resetn released, system start at 25000
+# 
+# ========== FIBONACCI TEST RESULTS ==========
+# lgc_addr 1 = 5,PASS
+# lgc_addr 2 = 10,PASS
+# lgc_addr 3 = 1,PASS
+# lgc_addr 4 = 0,PASS
+# lgc_addr 5 = 4294967295,PASS
+# lgc_addr 6 = 1,PASS
+# lgc_addr 7 = 1,PASS
+# lgc_addr 8 = 0,PASS
+# ============================================
+# 
+# ** Note: $finish    : tb_Top.sv(30)
+#    Time: 5025 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 30
+vlog -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 23:13:44 on Jun 08,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv fetch.sv decode.sv rat.sv arat.sv free_list.sv rename_stage.sv prf.sv rs.sv rob.sv alu.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 23:13:45 on Jun 08,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 14
+vsim -c tb_Top
+# End time: 23:13:50 on Jun 08,2026, Elapsed time: 0:01:00
+# Errors: 0, Warnings: 1
+# vsim -c tb_Top 
+# Start time: 23:13:50 on Jun 08,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+run -all
+# resetn released, system start at 25000
+# 
+# ========== FIBONACCI TEST RESULTS ==========
+# lgc_addr 1 = 1,PASS
+# lgc_addr 2 = 16,PASS
+# lgc_addr 3 = 4294967280,PASS
+# lgc_addr 4 = 1073741820,PASS
+# lgc_addr 5 = 4294967292,PASS
+# lgc_addr 6 = 3,PASS
+# lgc_addr 7 = 8,PASS
+# lgc_addr 8 = 2,PASS
+# ============================================
+# 
+# ** Note: $finish    : tb_Top.sv(30)
+#    Time: 5025 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 30

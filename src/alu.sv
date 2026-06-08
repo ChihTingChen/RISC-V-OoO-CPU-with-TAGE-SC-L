@@ -31,7 +31,10 @@ module alu (
                 ALU_AND: result = op1_data & op2_data;
                 ALU_OR:  result = op1_data | op2_data;
                 ALU_XOR: result = op1_data ^ op2_data;
-                ALU_SLT: result = ($signed(op1_data) < $signed(op2_data)) ? 1:0;
+                ALU_SLT: result = ($signed(op1_data) < $signed(op2_data)) ? 32'b1:32'b0;
+                ALU_SLL: result = op1_data << op2_data[4:0];
+                ALU_SRL: result = op1_data >> op2_data[4:0];
+                ALU_SRA: result = $signed(op1_data) >>> op2_data[4:0];
                 default: result = '0;
             endcase
         end

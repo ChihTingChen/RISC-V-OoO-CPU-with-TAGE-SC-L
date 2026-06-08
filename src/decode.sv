@@ -37,7 +37,11 @@ module decode(
                     //XOR
                     3'b100:decoded_pkt.alu_op = ALU_XOR;
                     //SLT
-                    3'b010: decoded_pkt.alu_op = ALU_SLT;
+                    3'b010:decoded_pkt.alu_op = ALU_SLT;
+                    //SLL
+                    3'b001:decoded_pkt.alu_op = ALU_SLL;
+                    //SRL & SRA
+                    3'b101:decoded_pkt.alu_op = (funct7[5]) ? ALU_SRA : ALU_SRL;
                     default: ;
                 endcase
             end
@@ -59,6 +63,11 @@ module decode(
                     3'b100:decoded_pkt.alu_op = ALU_XOR;
                     //SLTI
                     3'b010:decoded_pkt.alu_op = ALU_SLT;
+                    //SLLI
+                    3'b001: decoded_pkt.alu_op = ALU_SLL;
+                    //SRAI & SRLI
+                    3'b101: decoded_pkt.alu_op = (funct7[5]) ? ALU_SRA : ALU_SRL;
+
                     default: ;
                 endcase
             end
