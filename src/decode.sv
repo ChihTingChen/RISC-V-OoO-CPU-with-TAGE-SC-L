@@ -22,18 +22,45 @@ module decode(
         decoded_pkt.rs2_addr = IF_instr[24:20];
         decoded_pkt.rd_addr = IF_instr[11:7];
         case(opcode)
-            OPC_R_TYPE:begin//目前只有ADD
+            //R-Type instruction
+            OPC_R_TYPE:begin
                 decoded_pkt.uses_rs1 = 1'b1;
                 decoded_pkt.uses_rs2 = 1'b1;
                 decoded_pkt.writes_rd = 1'b1;
-                decoded_pkt.alu_op = ALU_ADD;
+                case(funct3)
+                    //ADD, SUB
+                    3'b000:decoded_pkt.alu_op = (funct7[5]) ? ALU_SUB : ALU_ADD;
+                    //AND
+                    3'b111:decoded_pkt.alu_op = ALU_AND;
+                    //OR
+                    3'b110:decoded_pkt.alu_op = ALU_OR;
+                    //XOR
+                    3'b100:decoded_pkt.alu_op = ALU_XOR;
+                    //SLT
+                    3'b010: decoded_pkt.alu_op = ALU_SLT;
+                    default: ;
+                endcase
             end
-            OPC_I_ALU:begin//目前只有ADDI
+            //I-Type instruction
+            OPC_I_ALU:begin
                 decoded_pkt.uses_rs1 = 1'b1;
                 decoded_pkt.uses_rs2 = 1'b0;
                 decoded_pkt.writes_rd = 1'b1;
-                decoded_pkt.alu_op = ALU_ADD;
+                //decoded_pkt.alu_op = ALU_ADD;
                 decoded_pkt.imm = imm_i;
+                case(funct3)
+                    //ADDI
+                    3'b000:decoded_pkt.alu_op = ALU_ADD;
+                    //ANDI
+                    3'b111:decoded_pkt.alu_op = ALU_AND;
+                    //ORI
+                    3'b110:decoded_pkt.alu_op = ALU_OR;
+                    //XORI
+                    3'b100:decoded_pkt.alu_op = ALU_XOR;
+                    //SLTI
+                    3'b010:decoded_pkt.alu_op = ALU_SLT;
+                    default: ;
+                endcase
             end
             OPC_BRANCH:begin//目前只有BNE
                 decoded_pkt.uses_rs1 = 1'b1;

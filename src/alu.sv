@@ -26,10 +26,12 @@ module alu (
         if(!is_branch)begin
             result = '0;
             case(alu_op)
-                ALU_ADD:begin
-                    result = op1_data + op2_data;
-                    //待未來擴充
-                end
+                ALU_ADD: result = op1_data + op2_data;
+                ALU_SUB: result = op1_data - op2_data;
+                ALU_AND: result = op1_data & op2_data;
+                ALU_OR:  result = op1_data | op2_data;
+                ALU_XOR: result = op1_data ^ op2_data;
+                ALU_SLT: result = ($signed(op1_data) < $signed(op2_data)) ? 1:0;
                 default: result = '0;
             endcase
         end

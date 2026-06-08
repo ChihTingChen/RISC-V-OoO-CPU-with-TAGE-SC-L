@@ -1,14 +1,4 @@
-C:/chihtinghw/2026summer_plan/OoO/src/alu.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/alu.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/alu.sv(1): (vlog-13233) Design unit "alu_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package alu_sv_unit
--- Importing package riscv_pkg
--- Compiling module alu
-
-Top level modules:
-	alu
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/Top.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/Top.sv
+C:/chihtinghw/2026summer_plan/OoO/src/Top.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/Top.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
 ** Warning: C:/chihtinghw/2026summer_plan/OoO/src/Top.sv(1): (vlog-13233) Design unit "Top_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
 -- Compiling package Top_sv_unit
@@ -43,16 +33,6 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	rob
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/decode.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/decode.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/decode.sv(1): (vlog-13233) Design unit "decode_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package decode_sv_unit
--- Importing package riscv_pkg
--- Compiling module decode
-
-Top level modules:
-	decode
 
 } {} {}} C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -119,12 +99,15 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 Top level modules:
 	fetch
 
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/tb_Top.sv {1 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/tb_Top.sv
+} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/imem.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/imem.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling module tb_Top
+** Warning: C:/chihtinghw/2026summer_plan/OoO/src/imem.sv(1): (vlog-13233) Design unit "imem_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+-- Compiling package imem_sv_unit
+-- Importing package riscv_pkg
+-- Compiling module imem
 
 Top level modules:
-	tb_Top
+	imem
 
 } {} {}} C:/chihtinghw/2026summer_plan/OoO/src/arat.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/arat.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -135,15 +118,5 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	arat
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/imem.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/imem.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/imem.sv(1): (vlog-13233) Design unit "imem_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package imem_sv_unit
--- Importing package riscv_pkg
--- Compiling module imem
-
-Top level modules:
-	imem
 
 } {} {}}

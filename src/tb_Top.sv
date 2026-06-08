@@ -17,10 +17,14 @@ module tb_Top;
 
         //start inspecting result
         $display("\n========== FIBONACCI TEST RESULTS ==========");
-        check_reg(1, 32'd89);    // x1 = F11 = 89
-        check_reg(2, 32'd144);   // x2 = F12 = 144
-        check_reg(3, 32'd0);     // x3 = counter 跑完 = 0
-        check_reg(4, 32'd144);   // x4 = 最後一次 tmp = 144
+        check_reg(1, 32'd5);
+        check_reg(2, 32'd10);
+        check_reg(3, 32'd1);          // SLT TRUE
+        check_reg(4, 32'd0);          // SLT FALSE
+        check_reg(5, 32'hffffffff);   // -1
+        check_reg(6, 32'd1);          // signed -1 < 5
+        check_reg(7, 32'd1);          // SLTI TRUE
+        check_reg(8, 32'd0);          // SLTI FALSE
         $display("============================================\n");
 
         $finish;
