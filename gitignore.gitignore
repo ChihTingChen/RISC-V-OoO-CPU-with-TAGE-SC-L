@@ -1,0 +1,14 @@
+# ModelSim
+work/
+transcript
+*.wlf
+*.vstf
+modelsim.ini
+
+# Wave dump
+*.vcd
+*.fsdb
+
+# Editor
+.vscode/
+*.swp
