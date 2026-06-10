@@ -76,7 +76,19 @@ module decode(
                 decoded_pkt.uses_rs2 = 1'b1;
                 decoded_pkt.writes_rd = 1'b0;
                 decoded_pkt.is_branch = 1'b1;
-                decoded_pkt.br_op = BR_NE;
+                decoded_pkt.rd_addr = 5'b0;
+                //decoded_pkt.br_op = BR_NE;
+                case(funct3)
+                    //BEQ
+                    3'b000: decoded_pkt.br_op = BR_EQ;
+                    //BNE
+                    3'b001: decoded_pkt.br_op = BR_NE;
+                    //BLT
+                    3'b100: decoded_pkt.br_op = BR_LT;
+                    //BGE
+                    3'b101: decoded_pkt.br_op = BR_GE;
+                    default: ;
+                endcase
                 decoded_pkt.imm = imm_b;
                 decoded_pkt.rd_addr = 5'b0;
             end

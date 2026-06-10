@@ -41,10 +41,10 @@ module alu (
         else if(is_branch)begin
             branch_taken = 0;
             case(br_op)
-                BR_NE:begin
-                    branch_taken = (op1_data != op2_data);
-                    //待未來擴充
-                end
+                BR_NE: branch_taken = (op1_data != op2_data);
+                BR_EQ: branch_taken = (op1_data == op2_data);
+                BR_LT: branch_taken = ($signed(op1_data) < $signed(op2_data));
+                BR_GE: branch_taken = ($signed(op1_data) >= $signed(op2_data));
                 default: branch_taken = 0;
             endcase
         end

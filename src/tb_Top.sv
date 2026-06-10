@@ -16,16 +16,16 @@ module tb_Top;
         repeat(500) @(posedge clk);
 
         //start inspecting result
-        $display("\n========== FIBONACCI TEST RESULTS ==========");
-        check_reg(1, 32'd1);
-        check_reg(2, 32'd16);
-        check_reg(3, 32'hfffffff0);   // -16
-        check_reg(4, 32'h3ffffffc);   // 邏輯右移
-        check_reg(5, 32'hfffffffc);   // 算術右移 = -4
-        check_reg(6, 32'd3);
-        check_reg(7, 32'd8);
-        check_reg(8, 32'd2);
-        $display("============================================\n");
+        $display("\n========== BRANCH TEST RESULTS ==========");
+        check_reg(1, 32'd5);
+        check_reg(2, 32'd5);
+        check_reg(3, 32'd10);
+        check_reg(4, 32'hfffffffd);   // -3
+        check_reg(5, 32'd1);            // BEQ taken
+        check_reg(6, 32'd1);            // BLT taken (signed)
+        check_reg(7, 32'd1);            // BGE taken
+        check_reg(8, 32'd11);           // BEQ not taken: addi+1 + addi+10
+        $display("=========================================\n");
 
         $finish;
     end
