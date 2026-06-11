@@ -18,6 +18,7 @@ module alu (
     input  logic is_load,
     input  logic is_store,
     input  logic [2:0] lsq_id,
+    input  logic is_jump,
     output cdb_pkt_t    alu_cdb_out,   // 直接丟出一整包
     output logic        alu_mem_valid,
     output logic [2:0]  alu_mem_lsq_id,
@@ -42,6 +43,7 @@ module alu (
                 ALU_OR:  result = op1_data | op2_data;
                 ALU_XOR: result = op1_data ^ op2_data;
                 ALU_SLT: result = ($signed(op1_data) < $signed(op2_data)) ? 32'b1:32'b0;
+                ALU_SLTU: result = (op1_data < op2_data) ? 32'd1 : 32'd0;
                 ALU_SLL: result = op1_data << op2_data[4:0];
                 ALU_SRL: result = op1_data >> op2_data[4:0];
                 ALU_SRA: result = $signed(op1_data) >>> op2_data[4:0];
@@ -55,6 +57,8 @@ module alu (
                 BR_EQ: branch_taken = (op1_data == op2_data);
                 BR_LT: branch_taken = ($signed(op1_data) < $signed(op2_data));
                 BR_GE: branch_taken = ($signed(op1_data) >= $signed(op2_data));
+                BR_LTU: branch_taken = (op1_data < op2_data);
+                BR_GEU: branch_taken = (op1_data >= op2_data);
                 default: branch_taken = 0;
             endcase
         end
@@ -67,6 +71,14 @@ module alu (
             alu_cdb_out.tag   = pp_rd;
             alu_cdb_out.rob_id= rob_id;
             if(is_load || is_store) alu_cdb_out = '0;
+            else if (is_jump) begin
+                // JAL/JALR：rd = PC+4，bad_branch=1 強制 flush 跳到 target
+                // JAL: decode 把 imm 預先加 PC 了，所以 op1=0 + imm = pc + imm_j ✓
+                // JALR: op1 = rs1, imm = imm_i, target = rs1 + imm ✓
+                alu_cdb_out.data       = inst_pc + 32'd4;
+                alu_cdb_out.bad_branch = 1'b1;
+                alu_cdb_out.target_pc  = op1_data + inst_imm;
+            end
             else if(is_branch)begin
                 alu_cdb_out.data = '0;
                 alu_cdb_out.bad_branch = branch_taken;

@@ -166,6 +166,7 @@ alu alu(
     .is_load(data_to_ALU.is_load),
     .is_store(data_to_ALU.is_store),
     .lsq_id(data_to_ALU.lsq_id),
+    .is_jump(data_to_ALU.is_jump),
     .alu_cdb_out(alu_cdb_raw),
     .alu_mem_valid(alu_mem_valid),
     .alu_mem_lsq_id(alu_mem_lsq_id),

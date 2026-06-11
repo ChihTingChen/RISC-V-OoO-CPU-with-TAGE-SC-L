@@ -11,7 +11,8 @@ package riscv_pkg;
         OPC_BRANCH = 7'b1100011, // BEQ, BNE, BLT, BGE
         OPC_JAL    = 7'b1101111, // JAL (跳轉並連結)
         OPC_JALR   = 7'b1100111, // JALR (暫存器跳轉)
-        OPC_LUI    = 7'b0110111  // LUI (載入高位立即數)
+        OPC_LUI    = 7'b0110111, // LUI (載入高位立即數)
+        OPC_AUIPC  = 7'b0010111  // AUIPC (PC + imm<<12)
     } opcode_t;
 
     // =======================================================
@@ -22,7 +23,8 @@ package riscv_pkg;
         ALU_ADD,
         ALU_SUB,
         ALU_SLL, // 邏輯左移
-        ALU_SLT, // 小於則設定 (氣泡排序核心)
+        ALU_SLT, // 小於則設定 (signed)
+        ALU_SLTU,// unsigned 版本
         ALU_XOR,
         ALU_SRL, // 邏輯右移
         ALU_SRA, // 算術右移
@@ -135,6 +137,7 @@ package riscv_pkg;
         logic       is_load;
         logic       is_store;
         logic [2:0] lsq_id;
+        logic       is_jump;
     }rs_entry_t;
     // =======================================================
     // 7. LSQ區域

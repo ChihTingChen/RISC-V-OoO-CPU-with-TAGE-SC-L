@@ -17,16 +17,23 @@ module tb_Top;
         $display("System start at %0t", $time);
         repeat(500) @(posedge clk);
 
-        $display("\n========== LW+SW FORWARDING TEST ==========");
-        check_reg(10, 32'd40);                       // x10 = 40
-        check_reg(11, 32'd100);                      // x11 = 100
-        check_reg(12, 32'd100);                      // x12 = mem[40] should be 100 via forwarding
-        $display("dmem[10] = %0d (expected 100)", dut.dmem.dmem[10]);
-        if (dut.dmem.dmem[10] === 32'd100)
-            $display("dmem[10] PASS");
-        else
-            $display("dmem[10] FAIL: got %0d", dut.dmem.dmem[10]);
-        $display("===========================================\n");
+        $display("\n========== JAL/JALR/AUIPC/UNSIGNED TEST ==========");
+        check_reg(1,  32'd5);
+        check_reg(2,  32'hFFFFFFFF);                 // -1
+        check_reg(3,  32'd1);                        // SLTU 5 < 0xFFFFFFFF unsigned
+        check_reg(4,  32'd1);                        // SLTIU 5 < 100 unsigned
+        check_reg(5,  32'h10);                       // AUIPC at PC=0x10
+        check_reg(6,  32'h18);                       // JAL rd = PC+4 = 0x14+4=0x18
+        check_reg(7,  32'd0);                        // skipped
+        check_reg(8,  32'd30);
+        check_reg(9,  32'd0);                        // skipped (BLTU taken)
+        check_reg(10, 32'd40);
+        check_reg(11, 32'd0);                        // skipped (BGEU taken)
+        check_reg(12, 32'd50);
+        check_reg(13, 32'h44);                       // = 0x38 + 12 = 0x44
+        check_reg(14, 32'h44);                       // JALR rd = PC+4 = 0x40+4 = 0x44
+        check_reg(15, 32'd60);
+        $display("==================================================\n");
         $finish;
     end
 

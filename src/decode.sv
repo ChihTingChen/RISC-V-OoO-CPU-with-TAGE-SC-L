@@ -12,6 +12,7 @@ module decode(
     wire [31:0] imm_b = {{19{IF_instr[31]}},IF_instr[7],IF_instr[30:25],IF_instr[11:8],1'b0};
     wire [31:0] imm_u = {IF_instr[31:12],12'b0};
     wire [31:0] imm_s = {{20{IF_instr[31]}},IF_instr[31:25],IF_instr[11:7]};
+    wire [31:0] imm_j = {{12{IF_instr[31]}},IF_instr[19:12],IF_instr[20],IF_instr[30:21],1'b0};
  
     //put the decoded information into the packet
     always_comb begin
@@ -39,6 +40,8 @@ module decode(
                     3'b100:decoded_pkt.alu_op = ALU_XOR;
                     //SLT
                     3'b010:decoded_pkt.alu_op = ALU_SLT;
+                    //SLTU
+                    3'b011:decoded_pkt.alu_op = ALU_SLTU;
                     //SLL
                     3'b001:decoded_pkt.alu_op = ALU_SLL;
                     //SRL & SRA
@@ -64,6 +67,8 @@ module decode(
                     3'b100:decoded_pkt.alu_op = ALU_XOR;
                     //SLTI
                     3'b010:decoded_pkt.alu_op = ALU_SLT;
+                    //SLTIU
+                    3'b011:decoded_pkt.alu_op = ALU_SLTU;
                     //SLLI
                     3'b001: decoded_pkt.alu_op = ALU_SLL;
                     //SRAI & SRLI
@@ -88,6 +93,10 @@ module decode(
                     3'b100: decoded_pkt.br_op = BR_LT;
                     //BGE
                     3'b101: decoded_pkt.br_op = BR_GE;
+                    //BLTU
+                    3'b110: decoded_pkt.br_op = BR_LTU;
+                    //BGEU
+                    3'b111: decoded_pkt.br_op = BR_GEU;
                     default: ;
                 endcase
                 decoded_pkt.imm = imm_b;
@@ -116,6 +125,37 @@ module decode(
                 decoded_pkt.alu_op   = ALU_ADD;
                 decoded_pkt.imm      = imm_s;
                 decoded_pkt.rd_addr  = 5'b0;
+            end
+            // AUIPC: rd = PC + (imm << 12)
+            // 用 LUI 套路：rs1=x0、alu_op=ADD、imm 預先加上 PC
+            OPC_AUIPC:begin
+                decoded_pkt.rs1_addr = '0;
+                decoded_pkt.rs2_addr = '0;
+                decoded_pkt.uses_rs1 = 1'b0;
+                decoded_pkt.uses_rs2 = 1'b0;
+                decoded_pkt.writes_rd= 1'b1;
+                decoded_pkt.alu_op   = ALU_ADD;
+                decoded_pkt.imm      = IF_pc + imm_u;
+            end
+            // JAL: PC = PC + imm_j, rd = PC + 4
+            // imm 預先加上 PC，ALU 統一用 (op1=0) + inst_imm 算 target
+            OPC_JAL:begin
+                decoded_pkt.rs1_addr = '0;   // 沒 rs1
+                decoded_pkt.rs2_addr = '0;
+                decoded_pkt.uses_rs1 = 1'b0;
+                decoded_pkt.uses_rs2 = 1'b0;
+                decoded_pkt.writes_rd= 1'b1;
+                decoded_pkt.is_jump  = 1'b1;
+                decoded_pkt.imm      = IF_pc + imm_j;
+            end
+            // JALR: PC = rs1 + imm, rd = PC + 4
+            OPC_JALR:begin
+                decoded_pkt.uses_rs1 = 1'b1;
+                decoded_pkt.rs2_addr = '0;
+                decoded_pkt.uses_rs2 = 1'b0;
+                decoded_pkt.writes_rd= 1'b1;
+                decoded_pkt.is_jump  = 1'b1;
+                decoded_pkt.imm      = imm_i;
             end
             default:begin
                 decoded_pkt.valid = 1'b0;
