@@ -20,6 +20,9 @@ module rob (
     output logic [5:0]  retire_pp_rd,//retire instruction本身的physical tag
     output logic [4:0]  retire_rd_addr,//retire instruction本身的logical address
     output logic        retire_writes_rd,//retire instruciton本身要不要WB
+    output logic        retire_is_load,
+    output logic        retire_is_store,
+    output logic [2:0]  retire_lsq_id,
 
     output logic        empty,
     output logic [3:0]  head_ptr,
@@ -61,6 +64,9 @@ module rob (
                 entries[tail].pp_rd <= renamed_pkt.pp_rd;
                 entries[tail].writes_rd <= renamed_pkt.writes_rd;
                 entries[tail].is_branch <= renamed_pkt.is_branch;
+                entries[tail].is_load   <= renamed_pkt.is_load;
+                entries[tail].is_store  <= renamed_pkt.is_store;
+                entries[tail].lsq_id    <= renamed_pkt.lsq_id;
                 entries[tail].target_pc <= 0;
                 entries[tail].bad_branch <= 0;
                 //retire
@@ -77,6 +83,9 @@ module rob (
                 entries[tail].pp_rd <= renamed_pkt.pp_rd;
                 entries[tail].writes_rd <= renamed_pkt.writes_rd;
                 entries[tail].is_branch <= renamed_pkt.is_branch;
+                entries[tail].is_load   <= renamed_pkt.is_load;
+                entries[tail].is_store  <= renamed_pkt.is_store;
+                entries[tail].lsq_id    <= renamed_pkt.lsq_id;
                 entries[tail].target_pc <= 0;
                 entries[tail].bad_branch <= 0;
             end
@@ -94,11 +103,17 @@ module rob (
         retire_pp_rd     = 0;
         retire_rd_addr   = 0;
         retire_writes_rd = 0;
+        retire_is_load   = 0;
+        retire_is_store  = 0;
+        retire_lsq_id    = 0;
         if(retire_en)begin
             retire_p_rd_old  = entries[head].pp_rd_old;
             retire_pp_rd     = entries[head].pp_rd;
             retire_rd_addr   = entries[head].rd_addr;
             retire_writes_rd = entries[head].writes_rd;
+            retire_is_load   = entries[head].is_load;
+            retire_is_store  = entries[head].is_store;
+            retire_lsq_id    = entries[head].lsq_id;
         end
     end
     assign rob_full = (counter == 16);

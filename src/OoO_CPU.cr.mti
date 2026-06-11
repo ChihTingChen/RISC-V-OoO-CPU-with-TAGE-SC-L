@@ -1,64 +1,12 @@
-C:/chihtinghw/2026summer_plan/OoO/src/Top.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/Top.sv
+C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/Top.sv(1): (vlog-13233) Design unit "Top_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package Top_sv_unit
+** Warning: C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv(1): (vlog-13233) Design unit "fetch_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+-- Compiling package fetch_sv_unit
 -- Importing package riscv_pkg
--- Compiling module Top
+-- Compiling module fetch
 
 Top level modules:
-	Top
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv(1): (vlog-13233) Design unit "rename_stage_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package rename_stage_sv_unit
--- Importing package riscv_pkg
--- Compiling module rename_stage
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rename_stage.sv(10): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-
-Top level modules:
-	rename_stage
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/rob.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/rob.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rob.sv(1): (vlog-13233) Design unit "rob_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package rob_sv_unit
--- Importing package riscv_pkg
--- Compiling module rob
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-
-Top level modules:
-	rob
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(1): (vlog-13233) Design unit "free_list_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package free_list_sv_unit
--- Importing package riscv_pkg
--- Compiling module free_list
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-
-Top level modules:
-	free_list
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/rs.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/rs.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rs.sv(1): (vlog-13233) Design unit "rs_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package rs_sv_unit
--- Importing package riscv_pkg
--- Compiling module rs
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
-
-Top level modules:
-	rs
+	fetch
 
 } {} {}} C:/chihtinghw/2026summer_plan/OoO/src/rat.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/rat.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
@@ -82,23 +30,6 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 Top level modules:
 	prf
 
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/riscv_pkg.sv {1 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/riscv_pkg.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
--- Compiling package riscv_pkg
-
-Top level modules:
-	--none--
-
-} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv
-Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Warning: C:/chihtinghw/2026summer_plan/OoO/src/fetch.sv(1): (vlog-13233) Design unit "fetch_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
--- Compiling package fetch_sv_unit
--- Importing package riscv_pkg
--- Compiling module fetch
-
-Top level modules:
-	fetch
-
 } {} {}} C:/chihtinghw/2026summer_plan/OoO/src/imem.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/imem.sv
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
 ** Warning: C:/chihtinghw/2026summer_plan/OoO/src/imem.sv(1): (vlog-13233) Design unit "imem_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
@@ -118,5 +49,17 @@ Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 
 
 Top level modules:
 	arat
+
+} {} {}} C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv {2 {vlog -work work -sv -stats=none C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(1): (vlog-13233) Design unit "free_list_sv_unit" already exists and will be overwritten. Overwriting SystemVerilog $unit with different source files.
+-- Compiling package free_list_sv_unit
+-- Importing package riscv_pkg
+-- Compiling module free_list
+** Warning: C:/chihtinghw/2026summer_plan/OoO/src/free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+
+Top level modules:
+	free_list
 
 } {} {}}

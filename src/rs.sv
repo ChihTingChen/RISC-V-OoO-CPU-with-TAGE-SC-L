@@ -68,6 +68,9 @@ module rs(
                 rs[vacancy].pp_rd     <= renamed_pkt.pp_rd;          
                 rs[vacancy].rob_id    <= renamed_pkt.rob_id;
                 rs[vacancy].is_branch <= renamed_pkt.is_branch;
+                rs[vacancy].is_load   <= renamed_pkt.is_load;
+                rs[vacancy].is_store  <= renamed_pkt.is_store;
+                rs[vacancy].lsq_id    <= renamed_pkt.lsq_id;
                 
                 if (rs1_ready_from_prf) begin
                     rs[vacancy].rs1_value <= rs1_data_from_prf;

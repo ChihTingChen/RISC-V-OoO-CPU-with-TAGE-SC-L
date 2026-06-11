@@ -5,6 +5,7 @@ module rename_stage(
     input  logic        rob_retire_en,// rob retire的enable信號
     input  logic [5:0]  rob_retire_p_rd,//rob retire的name
     input  logic [3:0] rob_id,
+    input  logic [2:0] lsq_id,
     input  logic rs_full,
     input  logic rob_full,
     input  phys_reg_t arat_recover_rat [0:31],
@@ -24,6 +25,7 @@ module rename_stage(
         renamed_pkt.pp_rd  = (actual_alloc_en) ? internal_pp_rd : 0;
         renamed_pkt.pp_rd_old = internal_pp_rd_old;
         renamed_pkt.rob_id = rob_id;
+        renamed_pkt.lsq_id = lsq_id;
     end
     //紀錄目前有哪些name被使用過的FIFO
     free_list u_free_list(

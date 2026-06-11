@@ -12,21 +12,19 @@ module tb_Top;
         resetn = 1'b0;
         repeat(3) @(posedge clk);
         resetn = 1'b1;
-        $display("resetn released, system start at %0t",$time);
+        @(posedge clk);  // 等一個 cycle 讓 resetn 完全生效
+
+        // 預載 dmem：byte addr 0x28 (index 10) = 0xDEADBEEF
+        dut.dmem.dmem[10] = 32'hDEADBEEF;
+        $display("Loaded dmem[10] = %h", dut.dmem.dmem[10]);
+
+        $display("System start at %0t", $time);
         repeat(500) @(posedge clk);
 
-        //start inspecting result
-        $display("\n========== BRANCH TEST RESULTS ==========");
-        check_reg(1, 32'd5);
-        check_reg(2, 32'd5);
-        check_reg(3, 32'd10);
-        check_reg(4, 32'hfffffffd);   // -3
-        check_reg(5, 32'd1);            // BEQ taken
-        check_reg(6, 32'd1);            // BLT taken (signed)
-        check_reg(7, 32'd1);            // BGE taken
-        check_reg(8, 32'd11);           // BEQ not taken: addi+1 + addi+10
-        $display("=========================================\n");
-
+        $display("\n========== LW TEST RESULTS ==========");
+        check_reg(1, 32'd40);         // x1 = 40 (= 0x28)
+        check_reg(2, 32'hDEADBEEF);   // x2 = mem[0x28] = 0xDEADBEEF
+        $display("======================================\n");
         $finish;
     end
 

@@ -11,7 +11,8 @@ module decode(
     wire [31:0] imm_i = {{20{IF_instr[31]}},IF_instr[31:20]};
     wire [31:0] imm_b = {{19{IF_instr[31]}},IF_instr[7],IF_instr[30:25],IF_instr[11:8],1'b0};
     wire [31:0] imm_u = {IF_instr[31:12],12'b0};
-
+    wire [31:0] imm_s = {{20{IF_instr[31]}},IF_instr[31:25],IF_instr[11:7]};
+ 
     //put the decoded information into the packet
     always_comb begin
         decoded_pkt = '0; // default value
@@ -98,6 +99,23 @@ module decode(
                 decoded_pkt.writes_rd = 1'b1;
                 decoded_pkt.alu_op = ALU_ADD;//LUI can be treated as ADD with imm_u
                 decoded_pkt.imm = imm_u;
+            end
+            OPC_LOAD:begin
+                decoded_pkt.uses_rs1 = 1'b1;
+                decoded_pkt.uses_rs2 = 1'b0;
+                decoded_pkt.writes_rd= 1'b1;
+                decoded_pkt.is_load  = 1'b1;
+                decoded_pkt.alu_op   = ALU_ADD;
+                decoded_pkt.imm      = imm_i;
+            end
+            OPC_STORE:begin
+                decoded_pkt.uses_rs1 = 1'b1;
+                decoded_pkt.uses_rs2 = 1'b1;
+                decoded_pkt.writes_rd= 1'b0;
+                decoded_pkt.is_store = 1'b1;
+                decoded_pkt.alu_op   = ALU_ADD;
+                decoded_pkt.imm      = imm_s;
+                decoded_pkt.rd_addr  = 5'b0;
             end
             default:begin
                 decoded_pkt.valid = 1'b0;

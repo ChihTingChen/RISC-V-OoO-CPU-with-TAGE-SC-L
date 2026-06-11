@@ -17,8 +17,23 @@ logic free_list_free_en;
 logic issue_en;
 logic rs1_ready_from_prf, rs2_ready_from_prf;
 cdb_pkt_t common_data_bus;
+cdb_pkt_t alu_cdb_raw;
+cdb_pkt_t lsq_cdb_out;
 rs_entry_t data_to_ALU;
 phys_reg_t arat_recover_rat [0:31];
+// LSQ 相關訊號
+logic [2:0]  lsq_id_alloc;
+logic        lsq_full;
+logic        retire_is_load, retire_is_store;
+logic [2:0]  retire_lsq_id;
+// ALU → LSQ
+logic        alu_mem_valid;
+logic [2:0]  alu_mem_lsq_id;
+logic [31:0] alu_mem_addr, alu_mem_data;
+logic        alu_mem_is_load;
+// LSQ ↔ dmem
+logic [31:0] dmem_addr, dmem_waddr, dmem_wdata, dmem_rdata;
+logic        dmem_wen;
 //IF instantiate
 fetch IF(
     .clk(clk),
@@ -49,6 +64,7 @@ rename_stage rename_stage(
     .rob_retire_en(free_list_free_en),//rob signal (gated by writes_rd)
     .rob_retire_p_rd(retire_p_rd_old),//rob signal
     .rob_id(rob_id_alloc),
+    .lsq_id(lsq_id_alloc),
     .rs_full(rs_full),
     .rob_full(rob_full),
     .arat_recover_rat(arat_recover_rat),
@@ -57,7 +73,8 @@ rename_stage rename_stage(
     .renamed_pkt(renamed_pkt),
     .stall(stall)
 );
-assign dispatch_en = renamed_pkt.valid && (!rob_full) && (!rs_full);
+assign dispatch_en = renamed_pkt.valid && (!rob_full) && (!rs_full)
+                  && (!((renamed_pkt.is_load || renamed_pkt.is_store) && lsq_full));
 rob rob(
     .clk(clk),
     .resetn(resetn),
@@ -74,6 +91,9 @@ rob rob(
     .retire_pp_rd(retire_pp_rd),//該指令的physical address
     .retire_rd_addr(retire_rd_addr),//該指令的logical addr
     .retire_writes_rd(retire_writes_rd),//out
+    .retire_is_load(retire_is_load),
+    .retire_is_store(retire_is_store),
+    .retire_lsq_id(retire_lsq_id),
     .empty(),//out
     .head_ptr(),//out
     .tail_ptr(),//out
@@ -125,13 +145,64 @@ alu alu(
     .issue_en(issue_en),
     .alu_op(data_to_ALU.alu_op),
     .br_op(data_to_ALU.br_op),
-    .op1_data(data_to_ALU.rs1_value),//不是從prf接，而是要從rs接過來
-    .op2_data(data_to_ALU.rs2_value),//不是從prf接，而是要從rs接過來
+    .op1_data(data_to_ALU.rs1_value),
+    .op2_data(data_to_ALU.rs2_value),
     .inst_pc(data_to_ALU.pc),
     .pp_rd(data_to_ALU.pp_rd),
     .rob_id(data_to_ALU.rob_id),
     .is_branch(data_to_ALU.is_branch),
     .inst_imm(data_to_ALU.imm),
-    .alu_cdb_out(common_data_bus)
+    .is_load(data_to_ALU.is_load),
+    .is_store(data_to_ALU.is_store),
+    .lsq_id(data_to_ALU.lsq_id),
+    .alu_cdb_out(alu_cdb_raw),
+    .alu_mem_valid(alu_mem_valid),
+    .alu_mem_lsq_id(alu_mem_lsq_id),
+    .alu_mem_addr(alu_mem_addr),
+    .alu_mem_data(alu_mem_data),
+    .alu_mem_is_load(alu_mem_is_load)
+);
+lsq lsq(
+    .clk(clk),
+    .resetn(resetn),
+    .flush(flush),
+    .dispatch_pkt(renamed_pkt),
+    .dispatch_en(dispatch_en),
+    .lsq_id_alloc(lsq_id_alloc),
+    .lsq_full(lsq_full),
+    .retire_en(retire_en),
+    .retire_lsq_id(retire_lsq_id),
+    .retire_is_load(retire_is_load),
+    .retire_is_store(retire_is_store),
+    .alu_mem_valid(alu_mem_valid),
+    .alu_mem_lsq_id(alu_mem_lsq_id),
+    .alu_mem_addr(alu_mem_addr),
+    .alu_mem_data(alu_mem_data),
+    .alu_mem_is_load(alu_mem_is_load),
+    .dmem_addr(dmem_addr),
+    .dmem_waddr(dmem_waddr),
+    .dmem_wdata(dmem_wdata),
+    .dmem_wen(dmem_wen),
+    .dmem_rdata(dmem_rdata),
+    .lsq_cdb_out(lsq_cdb_out),
+    .alu_cdb_valid(alu_cdb_raw.valid)
+);
+// 兩條 CDB merge：ALU 優先，LSQ 次之
+always_comb begin
+    if (alu_cdb_raw.valid)
+        common_data_bus = alu_cdb_raw;
+    else if (lsq_cdb_out.valid)
+        common_data_bus = lsq_cdb_out;
+    else
+        common_data_bus = '0;
+end
+dmem dmem(
+    .clk(clk),
+    .resetn(resetn),
+    .wen(dmem_wen),
+    .waddr(dmem_waddr),
+    .addr(dmem_addr),
+    .wdata(dmem_wdata),
+    .rdata(dmem_rdata)
 );
 endmodule

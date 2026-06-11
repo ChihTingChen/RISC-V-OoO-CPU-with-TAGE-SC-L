@@ -76,6 +76,9 @@ package riscv_pkg;
         logic        is_store;   // 是否是 SW
         logic        is_branch;  // 是否是 Branch 指令
         logic        is_jump;    // 是否是 JAL/JALR 指令
+
+        // --- LW/SW所需要信號 ---
+        logic [2:0] lsq_id; 
     } inst_pkt_t;
     // =======================================================
     // 5. ROB 專屬條目 (只存退休需要的必要資訊)
@@ -90,6 +93,9 @@ package riscv_pkg;
         logic        is_branch;   // 是否為分支指令 (未來處理猜錯時需要)
         logic [31:0] target_pc; // 存放如果分支發生/不發生時，正確的跳轉地址
         logic        bad_branch;
+        logic        is_load;
+        logic        is_store;
+        logic [2:0]  lsq_id;
     } rob_entry_t;
     // =======================================================
     // 5. CDB區域
@@ -125,5 +131,30 @@ package riscv_pkg;
         phys_reg_t pp_rd;
 
         logic [3:0] rob_id;
+        // memory
+        logic       is_load;
+        logic       is_store;
+        logic [2:0] lsq_id;
     }rs_entry_t;
+    // =======================================================
+    // 7. LSQ區域
+    // =======================================================
+typedef struct packed {
+    logic        valid;        // 這格有沒有指令
+    logic [3:0]  rob_id;       // 連回 ROB
+    logic        is_load;      // 1=LW, 0=SW
+    
+    // Address
+    logic        addr_ready;   // ALU 算完了沒
+    logic [31:0] addr;         // effective address
+    
+    // Data
+    logic        data_ready;
+    logic [31:0] data;
+    
+    // LW 專用
+    phys_reg_t   pp_rd;        // 結果要寫的 phys reg
+    logic        completed;    // 已上 CDB
+    logic [31:0] pc;           // violation 時跳回的 PC
+} lsq_entry_t;
 endpackage

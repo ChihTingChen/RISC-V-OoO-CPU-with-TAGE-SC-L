@@ -15,15 +15,25 @@ module alu (
     input  logic [3:0]  rob_id,       // 指令在 ROB 的位置
     input  logic        is_branch,    // 標記這是不是一條分支指令
     input  logic [31:0] inst_imm,
-    
-    output cdb_pkt_t    alu_cdb_out   // 直接丟出一整包
+    input  logic is_load,
+    input  logic is_store,
+    input  logic [2:0] lsq_id,
+    output cdb_pkt_t    alu_cdb_out,   // 直接丟出一整包
+    output logic        alu_mem_valid,
+    output logic [2:0]  alu_mem_lsq_id,
+    output logic [31:0] alu_mem_addr,
+    output logic [31:0] alu_mem_data,
+    output logic        alu_mem_is_load
 );
     logic branch_taken;
     logic [31:0] result;
     always_comb begin
         result = '0;
         branch_taken = 0;
-        if(!is_branch)begin
+        if(is_load||is_store)begin
+            result = op1_data + inst_imm;
+        end
+        else if(!is_branch)begin
             result = '0;
             case(alu_op)
                 ALU_ADD: result = op1_data + op2_data;
@@ -49,13 +59,15 @@ module alu (
             endcase
         end
     end
+    //cdb輸出控制
     always_comb begin
         alu_cdb_out = '0;
         if(issue_en)begin
             alu_cdb_out.valid = 1'b1;
             alu_cdb_out.tag   = pp_rd;
             alu_cdb_out.rob_id= rob_id;
-            if(is_branch)begin
+            if(is_load || is_store) alu_cdb_out = '0;
+            else if(is_branch)begin
                 alu_cdb_out.data = '0;
                 alu_cdb_out.bad_branch = branch_taken;
                 alu_cdb_out.target_pc  = inst_pc + inst_imm;
@@ -65,7 +77,21 @@ module alu (
                 alu_cdb_out.bad_branch = 1'b0;
             end
         end
-
+    end
+    //LSQ輸出控制
+    always_comb begin
+    alu_mem_valid    = 1'b0;
+    alu_mem_lsq_id   = '0;
+    alu_mem_addr     = '0;
+    alu_mem_data     = '0;
+    alu_mem_is_load  = 1'b0;
+        if (issue_en && (is_load||is_store)) begin
+            alu_mem_valid    = 1'b1;
+            alu_mem_lsq_id   = lsq_id;
+            alu_mem_addr     = op1_data + inst_imm;   // addr
+            alu_mem_data     = op2_data;              // SW 的 store data（LW 不會用）
+            alu_mem_is_load  = is_load;
+        end
     end
     
     
