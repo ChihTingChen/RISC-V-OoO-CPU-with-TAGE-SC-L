@@ -34,6 +34,13 @@ logic        alu_mem_is_load;
 // LSQ ↔ dmem
 logic [31:0] dmem_addr, dmem_waddr, dmem_wdata, dmem_rdata;
 logic        dmem_wen;
+// LSQ → ROB: SW ready
+logic        sw_ready_valid;
+logic [3:0]  sw_ready_rob_id;
+// LSQ → ROB/Fetch: memory order violation
+logic        mem_violation;
+logic [31:0] mem_violation_pc;
+logic [31:0] rob_redirect_pc_raw;
 //IF instantiate
 fetch IF(
     .clk(clk),
@@ -86,6 +93,9 @@ rob rob(
     .cdb_rob_id(common_data_bus.rob_id),//alu signal
     .cdb_bad_branch(common_data_bus.bad_branch),//alu signal
     .cdb_target_pc(common_data_bus.target_pc),//alu signal
+    .sw_ready_valid(sw_ready_valid),
+    .sw_ready_rob_id(sw_ready_rob_id),
+    .mem_violation(mem_violation),
     .retire_en(retire_en),
     .retire_p_rd_old(retire_p_rd_old),//舊的physical addr
     .retire_pp_rd(retire_pp_rd),//該指令的physical address
@@ -98,8 +108,9 @@ rob rob(
     .head_ptr(),//out
     .tail_ptr(),//out
     .rob_flush(flush),//out
-    .rob_redirect_pc(flush_pc)//接給fetch供他flush的時候使用
+    .rob_redirect_pc(rob_redirect_pc_raw)//先接 raw，下面 mux 後再到 flush_pc
 );
+assign flush_pc = mem_violation ? mem_violation_pc : rob_redirect_pc_raw;
 assign free_list_free_en = retire_en && retire_writes_rd;//只有真的有寫rd的指令retire時才把pp_rd_old還給free_list
 rs rs(
     .clk(clk),
@@ -185,7 +196,11 @@ lsq lsq(
     .dmem_wen(dmem_wen),
     .dmem_rdata(dmem_rdata),
     .lsq_cdb_out(lsq_cdb_out),
-    .alu_cdb_valid(alu_cdb_raw.valid)
+    .alu_cdb_valid(alu_cdb_raw.valid),
+    .sw_ready_valid(sw_ready_valid),
+    .sw_ready_rob_id(sw_ready_rob_id),
+    .mem_violation(mem_violation),
+    .mem_violation_pc(mem_violation_pc)
 );
 // 兩條 CDB merge：ALU 優先，LSQ 次之
 always_comb begin

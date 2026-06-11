@@ -15,6 +15,9 @@ module rob (
     input  logic [3:0]  cdb_rob_id,//ALU算完的該指令的rob entry id
     input  logic        cdb_bad_branch,//ALU發現BNE預測錯了，要告訴ROB要flush
     input  logic [31:0] cdb_target_pc,//ALU再算完的同時會回傳他如果prediction錯，應該要去哪
+    input  logic        sw_ready_valid,    // 來自 LSQ：某個 SW 兩個都 ready 了
+    input  logic [3:0]  sw_ready_rob_id,
+    input  logic        mem_violation,     // 來自 LSQ：memory order violation，需 flush
     output logic        retire_en,//告訴其他module誰要retire了
     output logic [5:0]  retire_p_rd_old,//該retire instruction取代過的physical tag，這可以被free了
     output logic [5:0]  retire_pp_rd,//retire instruction本身的physical tag
@@ -34,7 +37,7 @@ module rob (
     logic [3:0] head, tail;//兩個指標
     logic [4:0] counter;//用來協助判斷empty or full的counter
     assign retire_en = entries[head].valid && entries[head].ready;//可以retire的條件
-    assign rob_flush = entries[head].bad_branch && retire_en;//flush的條件 = misprediction 且 這條 branch指令準備retire
+    assign rob_flush = (entries[head].bad_branch && retire_en) || mem_violation;//BNE misprediction 或 memory ordering violation
     assign rob_redirect_pc = entries[head].target_pc;//把帶在身上的target_pc給到rob_redirect_pc，再輸出給fetch
     //ROB entries 更新邏輯
     always_ff@(posedge clk or negedge resetn)begin
@@ -51,6 +54,10 @@ module rob (
                 entries[cdb_rob_id].ready <= 1;
                 entries[cdb_rob_id].bad_branch <= cdb_bad_branch;
                 entries[cdb_rob_id].target_pc <= cdb_target_pc;
+            end
+            // SW 不上 CDB，靠 LSQ 直接通知
+            if(sw_ready_valid)begin
+                entries[sw_ready_rob_id].ready <= 1;
             end
             if(dispatch_en && retire_en)begin//有指令從rename stage來rob，也有指令從rob retire
                 head <= head + 1;

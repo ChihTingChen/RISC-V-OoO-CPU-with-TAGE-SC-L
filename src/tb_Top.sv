@@ -14,17 +14,19 @@ module tb_Top;
         resetn = 1'b1;
         @(posedge clk);  // 等一個 cycle 讓 resetn 完全生效
 
-        // 預載 dmem：byte addr 0x28 (index 10) = 0xDEADBEEF
-        dut.dmem.dmem[10] = 32'hDEADBEEF;
-        $display("Loaded dmem[10] = %h", dut.dmem.dmem[10]);
-
         $display("System start at %0t", $time);
         repeat(500) @(posedge clk);
 
-        $display("\n========== LW TEST RESULTS ==========");
-        check_reg(1, 32'd40);         // x1 = 40 (= 0x28)
-        check_reg(2, 32'hDEADBEEF);   // x2 = mem[0x28] = 0xDEADBEEF
-        $display("======================================\n");
+        $display("\n========== LW+SW FORWARDING TEST ==========");
+        check_reg(10, 32'd40);                       // x10 = 40
+        check_reg(11, 32'd100);                      // x11 = 100
+        check_reg(12, 32'd100);                      // x12 = mem[40] should be 100 via forwarding
+        $display("dmem[10] = %0d (expected 100)", dut.dmem.dmem[10]);
+        if (dut.dmem.dmem[10] === 32'd100)
+            $display("dmem[10] PASS");
+        else
+            $display("dmem[10] FAIL: got %0d", dut.dmem.dmem[10]);
+        $display("===========================================\n");
         $finish;
     end
 

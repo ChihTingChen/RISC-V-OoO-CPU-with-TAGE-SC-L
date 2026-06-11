@@ -30,7 +30,15 @@ module lsq (
     input  logic [31:0] dmem_rdata,   // LW 讀回來的資料
     // --------------cdb------------------------------
     output cdb_pkt_t lsq_cdb_out,
-    input  logic     alu_cdb_valid    // 來自 Top.sv：ALU 正在廣播時 LSQ 要讓
+    input  logic     alu_cdb_valid,   // 來自 Top.sv：ALU 正在廣播時 LSQ 要讓
+
+    // --------------SW ready -> ROB ---------------------
+    output logic        sw_ready_valid,
+    output logic [3:0]  sw_ready_rob_id,
+
+    // --------------Memory Order Violation ---------------------
+    output logic        mem_violation,
+    output logic [31:0] mem_violation_pc
 );
     //lsq array
     lsq_entry_t lsq [0:7];
@@ -41,29 +49,87 @@ module lsq (
     //find the ready LW
     logic        lw_exec_found;
     logic [2:0]  lw_exec_idx;
-
     always_comb begin
         lw_exec_found = 1'b0;
         lw_exec_idx   = 3'd0;
         for (int i = 0; i < 8; i++) begin
-            if (!lw_exec_found
-                && lsq[i].valid
-                && lsq[i].is_load
-                && lsq[i].addr_ready
-                && !lsq[i].completed) begin
+            if (!lw_exec_found && lsq[i].valid && lsq[i].is_load && lsq[i].addr_ready && !lsq[i].completed) begin
                 lw_exec_found = 1'b1;
                 lw_exec_idx   = i[2:0];
             end
         end
     end
     assign dmem_addr = lw_exec_found ? lsq[lw_exec_idx].addr : '0;
+
+    // ===== Store-to-Load Forwarding =====
+    // LW 執行時，找最新的「比我老 + 同 addr + data_ready」的 SW，拿它的 data
+    logic        fwd_found;
+    logic [31:0] fwd_data;
+    logic [2:0]  fwd_best_age;
+
+    always_comb begin
+        fwd_found    = 1'b0;
+        fwd_data     = '0;
+        fwd_best_age = '0;
+
+        if (lw_exec_found) begin
+            for (int i = 0; i < 8; i++) begin
+                if (lsq[i].valid
+                    && !lsq[i].is_load                                   // 是 SW
+                    && lsq[i].data_ready                                  // SW 的 data 已準備
+                    && lsq[i].addr == lsq[lw_exec_idx].addr               // addr 相同
+                    && ((i[2:0] - head) < (lw_exec_idx - head)))          // 比 LW 老
+                begin
+                    // 拿 age 最大的（最新的 older SW）
+                    if (!fwd_found || ((i[2:0] - head) > fwd_best_age)) begin
+                        fwd_found    = 1'b1;
+                        fwd_data     = lsq[i].data;
+                        fwd_best_age = i[2:0] - head;
+                    end
+                end
+            end
+        end
+    end
+
+    //find a ready SW
+    always_comb begin
+    sw_ready_valid  = 1'b0;
+    sw_ready_rob_id = '0;
+        for (int i = 0; i < 8; i++) begin
+            if (!sw_ready_valid && lsq[i].valid && !lsq[i].is_load && lsq[i].addr_ready && lsq[i].data_ready) begin
+                sw_ready_valid  = 1'b1;
+                sw_ready_rob_id = lsq[i].rob_id;
+            end
+        end
+    end
+    
     always_comb begin
         lsq_cdb_out = '0;
         if (lw_exec_found && !alu_cdb_valid) begin  // ALU 在廣播時讓
             lsq_cdb_out.valid  = 1'b1;
-            lsq_cdb_out.data   = dmem_rdata;
+            lsq_cdb_out.data   = fwd_found ? fwd_data : dmem_rdata;  // forward 優先
             lsq_cdb_out.tag    = lsq[lw_exec_idx].pp_rd;
             lsq_cdb_out.rob_id = lsq[lw_exec_idx].rob_id;
+        end
+    end
+
+    // ===== Memory Order Violation 偵測 =====
+    // SW 算完 addr 時，掃 younger 已 completed 的 LW 看有沒有 addr 衝突
+    always_comb begin
+        mem_violation    = 1'b0;
+        mem_violation_pc = '0;
+        if (alu_mem_valid && !alu_mem_is_load) begin
+            for (int i = 0; i < 8; i++) begin
+                if (lsq[i].valid
+                    && lsq[i].is_load
+                    && lsq[i].completed
+                    && lsq[i].addr == alu_mem_addr
+                    && ((i[2:0] - head) > (alu_mem_lsq_id - head)))
+                begin
+                    mem_violation    = 1'b1;
+                    mem_violation_pc = lsq[alu_mem_lsq_id].pc;
+                end
+            end
         end
     end
 
@@ -88,7 +154,7 @@ module lsq (
                 end
             end
             if (lw_exec_found && !alu_cdb_valid) begin  // 廣播沒被擋掉才標記
-                lsq[lw_exec_idx].data       <= dmem_rdata;
+                lsq[lw_exec_idx].data       <= fwd_found ? fwd_data : dmem_rdata;
                 lsq[lw_exec_idx].data_ready <= 1'b1;
                 lsq[lw_exec_idx].completed  <= 1'b1;
             end
@@ -123,8 +189,8 @@ module lsq (
     assign lsq_id_alloc = tail;
     assign lsq_full     = (counter == 4'd8);
 
-    // ----- dmem placeholder（B-8/B-10 才實作）-----
-    assign dmem_waddr = '0;
-    assign dmem_wdata = '0;
-    assign dmem_wen   = 1'b0;
+    // ----- SW retire 寫 dmem -----
+    assign dmem_waddr = lsq[retire_lsq_id].addr;
+    assign dmem_wdata = lsq[retire_lsq_id].data;
+    assign dmem_wen   = retire_en && retire_is_store;
 endmodule
