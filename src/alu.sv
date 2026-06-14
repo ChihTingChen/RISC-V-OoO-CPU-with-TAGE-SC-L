@@ -46,7 +46,7 @@ module alu (
                 ALU_SLTU: result = (op1_data < op2_data) ? 32'd1 : 32'd0;
                 ALU_SLL: result = op1_data << op2_data[4:0];
                 ALU_SRL: result = op1_data >> op2_data[4:0];
-                ALU_SRA: result = $signed(op1_data) >>> op2_data[4:0];
+                ALU_SRA: result = $unsigned($signed(op1_data) >>> op2_data[4:0]);
                 default: result = '0;
             endcase
         end

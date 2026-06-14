@@ -134,12 +134,20 @@ module lsq (
     end
 
     always_ff@(posedge clk or negedge resetn)begin
-        if(!resetn || flush)begin
+        if(!resetn)begin
             head    <= 0;
             tail    <= 0;
             counter <= 0;
             for(int i=0; i<8; i++)begin
-                lsq[i] <= '0; 
+                lsq[i] <= '0;
+            end
+        end
+        else if(flush)begin
+            head    <= 0;
+            tail    <= 0;
+            counter <= 0;
+            for(int i=0; i<8; i++)begin
+                lsq[i] <= '0;
             end
         end
         else begin

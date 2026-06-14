@@ -41,7 +41,15 @@ module rob (
     assign rob_redirect_pc = entries[head].target_pc;//把帶在身上的target_pc給到rob_redirect_pc，再輸出給fetch
     //ROB entries 更新邏輯
     always_ff@(posedge clk or negedge resetn)begin
-        if(!resetn || rob_flush)begin
+        if(!resetn)begin
+            head <= 0;
+            tail <= 0;
+            counter <= 0;
+            for(int i=0;i<16;i++)begin
+                entries[i] <= '0;
+            end
+        end
+        else if(rob_flush)begin
             head <= 0;
             tail <= 0;
             counter <= 0;

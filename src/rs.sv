@@ -47,7 +47,12 @@ module rs(
     end*/
     //寫入邏輯
     always_ff@(posedge clk or negedge resetn) begin
-        if(!resetn || flush)begin
+        if(!resetn)begin
+            for(j=0;j<8;j++)begin
+                rs[j] <= '0;
+            end
+        end
+        else if(flush)begin
             for(j=0;j<8;j++)begin
                 rs[j] <= '0;
             end
