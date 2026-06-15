@@ -41,6 +41,14 @@ logic [3:0]  sw_ready_rob_id;
 logic        mem_violation;
 logic [31:0] mem_violation_pc;
 logic [31:0] rob_redirect_pc_raw;
+
+// ===== BPU 連線 =====
+bpu_meta_t   bpu_predict_meta;          // BPU → fetch
+bpu_meta_t   IF_bpu_meta_out;           // fetch → decode
+logic        bpu_update_en;             // ROB → BPU
+logic        bpu_update_actual_taken;   // ROB → BPU
+bpu_meta_t   bpu_update_meta;           // ROB → BPU
+
 //IF instantiate
 fetch IF(
     .clk(clk),
@@ -49,8 +57,20 @@ fetch IF(
     .flush(flush),//in
     .flush_pc(flush_pc),//in
     .IF_instr(IF_instr),//in
+    .bpu_predict_meta(bpu_predict_meta),
     .IF_pc(IF_pc),//out
-    .IF_instr_out(IF_instr_out)//out
+    .IF_instr_out(IF_instr_out),//out
+    .IF_bpu_meta_out(IF_bpu_meta_out)
+);
+// BPU instantiate
+bpu bpu(
+    .clk(clk),
+    .resetn(resetn),
+    .predict_pc(IF_pc),
+    .predict_meta(bpu_predict_meta),
+    .update_en(bpu_update_en),
+    .update_actual_taken(bpu_update_actual_taken),
+    .update_meta(bpu_update_meta)
 );
 //imem instantiate
 imem imem(
@@ -61,6 +81,7 @@ imem imem(
 decode decode(
     .IF_pc(IF_pc),//in
     .IF_instr(IF_instr),//in
+    .IF_bpu_meta(IF_bpu_meta_out),
     .decoded_pkt(decoded_pkt)//out
 );
 logic dispatch_en;
@@ -108,7 +129,10 @@ rob rob(
     .head_ptr(),//out
     .tail_ptr(),//out
     .rob_flush(flush),//out
-    .rob_redirect_pc(rob_redirect_pc_raw)//先接 raw，下面 mux 後再到 flush_pc
+    .rob_redirect_pc(rob_redirect_pc_raw),//先接 raw，下面 mux 後再到 flush_pc
+    .bpu_update_en(bpu_update_en),
+    .bpu_update_actual_taken(bpu_update_actual_taken),
+    .bpu_update_meta(bpu_update_meta)
 );
 assign flush_pc = mem_violation ? mem_violation_pc : rob_redirect_pc_raw;
 assign free_list_free_en = retire_en && retire_writes_rd;//只有真的有寫rd的指令retire時才把pp_rd_old還給free_list
@@ -167,6 +191,7 @@ alu alu(
     .is_store(data_to_ALU.is_store),
     .lsq_id(data_to_ALU.lsq_id),
     .is_jump(data_to_ALU.is_jump),
+    .predicted_taken(data_to_ALU.predicted_taken),
     .alu_cdb_out(alu_cdb_raw),
     .alu_mem_valid(alu_mem_valid),
     .alu_mem_lsq_id(alu_mem_lsq_id),

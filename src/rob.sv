@@ -31,7 +31,12 @@ module rob (
     output logic [3:0]  head_ptr,
     output logic [3:0]  tail_ptr,
     output logic        rob_flush,        // 告訴全後端：通通清空！
-    output logic [31:0] rob_redirect_pc   // 告訴 Fetch：請從這個正確地址開始抓
+    output logic [31:0] rob_redirect_pc,  // 告訴 Fetch：請從這個正確地址開始抓
+
+    // ===== BPU update interface =====
+    output logic        bpu_update_en,            // 該 cycle 有 conditional branch retire
+    output logic        bpu_update_actual_taken,  // 真實 taken 結果
+    output bpu_meta_t   bpu_update_meta           // predict 時存的 metadata
 );
     rob_entry_t entries [0:15];//ROB有16格
     logic [3:0] head, tail;//兩個指標
@@ -84,6 +89,7 @@ module rob (
                 entries[tail].lsq_id    <= renamed_pkt.lsq_id;
                 entries[tail].target_pc <= 0;
                 entries[tail].bad_branch <= 0;
+                entries[tail].bpu_meta  <= renamed_pkt.bpu_meta;
                 //retire
                 entries[head].valid <= 0;
             end
@@ -103,6 +109,7 @@ module rob (
                 entries[tail].lsq_id    <= renamed_pkt.lsq_id;
                 entries[tail].target_pc <= 0;
                 entries[tail].bad_branch <= 0;
+                entries[tail].bpu_meta  <= renamed_pkt.bpu_meta;
             end
             else if(retire_en)begin//沒有指令從rename stage來rob，但有指令從rob retire
                 head <= head + 1;
@@ -134,5 +141,20 @@ module rob (
     assign rob_full = (counter == 16);
     assign head_ptr = head;
     assign tail_ptr = tail;
+
+    // ===== BPU update interface =====
+    // 只有 conditional branch retire 時才更新 BPU（JAL/JALR 不算）
+    // actual_taken 用「預測 XOR 預測錯」推出來
+    always_comb begin
+        bpu_update_en           = 1'b0;
+        bpu_update_actual_taken = 1'b0;
+        bpu_update_meta         = '0;
+        if (retire_en && entries[head].is_branch) begin
+            bpu_update_en           = 1'b1;
+            bpu_update_meta         = entries[head].bpu_meta;
+            bpu_update_actual_taken = entries[head].bpu_meta.pred_taken
+                                    ^ entries[head].bad_branch;
+        end
+    end
 
 endmodule

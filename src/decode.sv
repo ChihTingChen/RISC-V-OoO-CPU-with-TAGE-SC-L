@@ -1,8 +1,9 @@
 import riscv_pkg::*;
 module decode(
-    input [31:0] IF_pc,
-    input [31:0] IF_instr,
-    output inst_pkt_t decoded_pkt
+    input [31:0]        IF_pc,
+    input [31:0]        IF_instr,
+    input  bpu_meta_t   IF_bpu_meta,        // 從 fetch 來的 BPU metadata
+    output inst_pkt_t   decoded_pkt
 );
     wire [6:0] opcode = IF_instr[6:0];
     wire [2:0] funct3 = IF_instr[14:12];
@@ -20,6 +21,7 @@ module decode(
         decoded_pkt.pc = IF_pc;
         decoded_pkt.valid = 1'b1; // assume all instructions are valid for now
         decoded_pkt.instr = IF_instr;
+        decoded_pkt.bpu_meta = IF_bpu_meta;   // 把 BPU metadata 塞進 inst_pkt 一起流動
         decoded_pkt.rs1_addr = IF_instr[19:15];
         decoded_pkt.rs2_addr = IF_instr[24:20];
         decoded_pkt.rd_addr = IF_instr[11:7];

@@ -19,6 +19,7 @@ module alu (
     input  logic is_store,
     input  logic [2:0] lsq_id,
     input  logic is_jump,
+    input  logic predicted_taken,        // BPU 對這條 branch 的方向預測（0=NT, 1=T）
     output cdb_pkt_t    alu_cdb_out,   // 直接丟出一整包
     output logic        alu_mem_valid,
     output logic [2:0]  alu_mem_lsq_id,
@@ -80,9 +81,14 @@ module alu (
                 alu_cdb_out.target_pc  = op1_data + inst_imm;
             end
             else if(is_branch)begin
-                alu_cdb_out.data = '0;
-                alu_cdb_out.bad_branch = branch_taken;
-                alu_cdb_out.target_pc  = inst_pc + inst_imm;
+                // BPU 整合：bad_branch = 預測 ≠ 實際
+                //         target_pc = 「真實該去的位置」
+                //         真實 taken  → pc + imm
+                //         真實 NT     → pc + 4
+                alu_cdb_out.data       = '0;
+                alu_cdb_out.bad_branch = (branch_taken != predicted_taken);
+                alu_cdb_out.target_pc  = branch_taken ? (inst_pc + inst_imm)
+                                                     : (inst_pc + 32'd4);
             end
             else begin
                 alu_cdb_out.data = result;

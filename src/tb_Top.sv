@@ -14,6 +14,51 @@ module tb_Top;
     int test_pass  = 0;
     int test_fail  = 0;
 
+    // ===== Performance counters (per-test) =====
+    int test_cycles, test_active_cycles, test_inst_retired;
+    int test_branches, test_mispredicts;
+    int test_t0_cnt, test_t1_cnt, test_t2_cnt, test_t3_cnt;
+
+    // ===== Performance counters (cumulative across all tests) =====
+    int total_cycles, total_active_cycles, total_inst_retired;
+    int total_branches, total_mispredicts;
+    int total_t0_cnt, total_t1_cnt, total_t2_cnt, total_t3_cnt;
+
+    // ===== Counter update (monitor DUT signals every clock) =====
+    // 重要：resetn=0 時自動清 test counters，避免 task 用 blocking、
+    //      always 用 NBA 互打架造成 race condition
+    always @(posedge clk) begin
+        if (!resetn) begin
+            test_cycles        <= 0;
+            test_active_cycles <= 0;
+            test_inst_retired  <= 0;
+            test_branches      <= 0;
+            test_mispredicts   <= 0;
+            test_t0_cnt        <= 0;
+            test_t1_cnt        <= 0;
+            test_t2_cnt        <= 0;
+            test_t3_cnt        <= 0;
+        end
+        else begin
+            test_cycles <= test_cycles + 1;
+            if (dut.rob.retire_en) begin
+                test_inst_retired  <= test_inst_retired + 1;
+                test_active_cycles <= test_cycles + 1;   // 紀錄最後一次 retire 的 cycle
+            end
+            if (dut.rob.bpu_update_en) begin
+                test_branches <= test_branches + 1;
+                if (dut.rob.bpu_update_actual_taken != dut.rob.bpu_update_meta.pred_taken)
+                    test_mispredicts <= test_mispredicts + 1;
+                case (dut.rob.bpu_update_meta.provider)
+                    2'b00: test_t0_cnt <= test_t0_cnt + 1;
+                    2'b01: test_t1_cnt <= test_t1_cnt + 1;
+                    2'b10: test_t2_cnt <= test_t2_cnt + 1;
+                    2'b11: test_t3_cnt <= test_t3_cnt + 1;
+                endcase
+            end
+        end
+    end
+
     // ============================================================
     // Helper tasks
     // ============================================================
@@ -47,15 +92,45 @@ module tb_Top;
         $display("\n========== %s ==========", name);
         test_pass = 0;
         test_fail = 0;
-        // Reset CPU
+        // 注意：test_cycles / test_inst_retired 等是由 always block 在 resetn=0
+        //      時自動清零的（避免 race condition），不要在這裡手動清。
         resetn = 1'b0;
         repeat(3) @(posedge clk);
     endtask
 
     task finish_test();
-        total_pass = total_pass + test_pass;
-        total_fail = total_fail + test_fail;
+        int ipc_x1000, acc_x10, mpki_x10;
+        total_pass          = total_pass          + test_pass;
+        total_fail          = total_fail          + test_fail;
+        total_cycles        = total_cycles        + test_cycles;
+        total_active_cycles = total_active_cycles + test_active_cycles;
+        total_inst_retired  = total_inst_retired  + test_inst_retired;
+        total_branches      = total_branches      + test_branches;
+        total_mispredicts   = total_mispredicts   + test_mispredicts;
+        total_t0_cnt        = total_t0_cnt        + test_t0_cnt;
+        total_t1_cnt        = total_t1_cnt        + test_t1_cnt;
+        total_t2_cnt        = total_t2_cnt        + test_t2_cnt;
+        total_t3_cnt        = total_t3_cnt        + test_t3_cnt;
+
         $display("  Result: %0d PASS, %0d FAIL", test_pass, test_fail);
+        if (test_active_cycles > 0) begin
+            ipc_x1000 = (test_inst_retired * 1000) / test_active_cycles;
+            $display("  [PERF] ActiveCycles=%0d  Inst=%0d  IPC=%0d.%03d  (excluding idle)",
+                     test_active_cycles, test_inst_retired,
+                     ipc_x1000/1000, ipc_x1000%1000);
+        end
+        if (test_branches > 0) begin
+            acc_x10  = ((test_branches - test_mispredicts) * 1000) / test_branches;
+            mpki_x10 = (test_inst_retired > 0)
+                     ? (test_mispredicts * 10000) / test_inst_retired
+                     : 0;
+            $display("  [PERF] Branches=%0d  Mispredicts=%0d  Accuracy=%0d.%01d%%  MPKI=%0d.%01d",
+                     test_branches, test_mispredicts,
+                     acc_x10/10, acc_x10%10,
+                     mpki_x10/10, mpki_x10%10);
+            $display("  [PERF] Provider:  T0=%0d  T1=%0d  T2=%0d  T3=%0d",
+                     test_t0_cnt, test_t1_cnt, test_t2_cnt, test_t3_cnt);
+        end
     endtask
 
     task fill_nop(input int start);
@@ -307,7 +382,124 @@ module tb_Top;
     endtask
 
     // ============================================================
-    // Main: run all 9 tests
+    // Test 10: BPU stress test — 100-iteration loop
+    //   Same branch fires 100 times: 99 taken + 1 not-taken
+    //   Designed to let TAGE warm-up + show prediction accuracy
+    // ============================================================
+    task run_test10();
+        start_test("Test 10: BPU Stress (100-iter loop)");
+        dut.imem.imem[0] = 32'h00000093;  // addi x1, x0, 0    ; x1 = 0
+        dut.imem.imem[1] = 32'h06400113;  // addi x2, x0, 100  ; x2 = 100
+        dut.imem.imem[2] = 32'h00108093;  // loop: addi x1, x1, 1
+        dut.imem.imem[3] = 32'hFE209EE3;  // bne x1, x2, -4   ; loop while x1!=100
+        fill_nop(4);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(1500) @(posedge clk);
+        check_reg(1, 32'd100);
+        check_reg(2, 32'd100);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Test 11: BPU pattern test — Alternating (period 2)
+    //   Branch fires T, NT, T, NT, ... 60 times
+    //   T0 alone gets ~50% (ctr oscillates around 0)
+    //   T1 (h=4) should learn and provide near-100% accuracy after warm-up
+    //   Expected: x4 = 30 (even count), x5 = 30 (odd count)
+    // ============================================================
+    task run_test11();
+        start_test("Test 11: BPU Pattern - Alternating (period 2)");
+        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        dut.imem.imem[1]  = 32'h03C00113;  // addi x2, x0, 60      ; N = 60
+        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; even_count = 0
+        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; odd_count  = 0
+        // loop:
+        dut.imem.imem[4]  = 32'h0010F193;  // andi x3, x1, 1       ; x3 = i & 1
+        dut.imem.imem[5]  = 32'h00019663;  // bne  x3, x0, +12     ; if odd → jump to imem[8]
+        dut.imem.imem[6]  = 32'h00120213;  // addi x4, x4, 1       ; even: x4++
+        dut.imem.imem[7]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[9]
+        dut.imem.imem[8]  = 32'h00128293;  // odd:  addi x5, x5, 1 ; odd: x5++
+        dut.imem.imem[9]  = 32'h00108093;  // addi x1, x1, 1       ; i++
+        dut.imem.imem[10] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[4]
+        fill_nop(11);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(5000) @(posedge clk);   // 大 budget：alternating 早期 mispredict 多
+        check_reg(1, 32'd60);
+        check_reg(2, 32'd60);
+        check_reg(4, 32'd30);
+        check_reg(5, 32'd30);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Test 12: BPU pattern test — 4-cycle (period 4)
+    //   Branch fires NT NT NT T (i&3==3), repeated 16 times = 64 iters
+    //   Expected: x4 = 48 (NT outcomes), x5 = 16 (T outcomes)
+    //   T1 (h=4) should perfectly distinguish all 4 phases
+    // ============================================================
+    task run_test12();
+        start_test("Test 12: BPU Pattern - 4-cycle (period 4)");
+        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        dut.imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64      ; N = 64
+        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
+        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
+        dut.imem.imem[4]  = 32'h00300313;  // addi x6, x0, 3       ; mask = 3
+        // loop:
+        dut.imem.imem[5]  = 32'h0030F193;  // andi x3, x1, 3       ; x3 = i & 3
+        dut.imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==3 → jump
+        dut.imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
+        dut.imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
+        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
+        dut.imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
+        dut.imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
+        fill_nop(12);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(5000) @(posedge clk);   // 大 budget：4-cycle pattern warm-up 需要時間
+        check_reg(1, 32'd64);
+        check_reg(2, 32'd64);
+        check_reg(4, 32'd48);
+        check_reg(5, 32'd16);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Test 13: BPU pattern test — 16-cycle (period 16)
+    //   Branch fires 15×NT 1×T, repeated 5 times = 80 iters
+    //   Expected: x4 = 75 (NT), x5 = 5 (T)
+    //   T2 (h=16) should be ideal — captures the full period
+    //   T1 (h=4) NOT enough — period > history length
+    // ============================================================
+    task run_test13();
+        start_test("Test 13: BPU Pattern - 16-cycle (period 16)");
+        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        dut.imem.imem[1]  = 32'h05000113;  // addi x2, x0, 80      ; N = 80
+        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
+        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
+        dut.imem.imem[4]  = 32'h00F00313;  // addi x6, x0, 15      ; mask = 15
+        // loop:
+        dut.imem.imem[5]  = 32'h00F0F193;  // andi x3, x1, 15      ; x3 = i & 15
+        dut.imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==15 → jump
+        dut.imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
+        dut.imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
+        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
+        dut.imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
+        dut.imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
+        fill_nop(12);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(3000) @(posedge clk);   // 加一點 budget 確保完成
+        check_reg(1, 32'd80);
+        check_reg(2, 32'd80);
+        check_reg(4, 32'd75);
+        check_reg(5, 32'd5);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Main: run all 13 tests
     // ============================================================
     initial begin
         // Initial reset
@@ -317,7 +509,7 @@ module tb_Top;
         @(posedge clk);
 
         $display("\n##############################################");
-        $display("#  OoO RV32I CPU - Full Regression (9 tests) #");
+        $display("#  OoO RV32I CPU - Full Regression (13 tests) #");
         $display("##############################################");
 
         run_test1();
@@ -329,23 +521,57 @@ module tb_Top;
         run_test7();
         run_test8();
         run_test9();
+        run_test10();   // BPU stress test (100-iter loop, always-T)
+        run_test11();   // BPU pattern: alternating period 2 (exercises T1)
+        run_test12();   // BPU pattern: 4-cycle (exercises T1)
+        run_test13();   // BPU pattern: 16-cycle (exercises T2)
 
-        $display("\n##############################################");
-        $display("#               OVERALL SUMMARY              #");
-        $display("##############################################");
-        $display("  TOTAL PASS : %0d", total_pass);
-        $display("  TOTAL FAIL : %0d", total_fail);
-        if (total_fail == 0)
-            $display("  >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<");
-        else
-            $display("  !!!!!!!!  %0d FAILURES DETECTED  !!!!!!!!", total_fail);
-        $display("##############################################\n");
+        begin : overall_report
+            int ipc_x1000, acc_x10, mpki_x10;
+            $display("\n##############################################");
+            $display("#            OVERALL CORRECTNESS             #");
+            $display("##############################################");
+            $display("  TOTAL PASS : %0d", total_pass);
+            $display("  TOTAL FAIL : %0d", total_fail);
+            if (total_fail == 0)
+                $display("  >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<");
+            else
+                $display("  !!!!!!!!  %0d FAILURES DETECTED  !!!!!!!!", total_fail);
+
+            $display("\n##############################################");
+            $display("#          OVERALL PERFORMANCE (BPU)         #");
+            $display("##############################################");
+            $display("  Total Cycles (raw)  : %0d", total_cycles);
+            $display("  Total Active Cycles : %0d  (idle excluded)", total_active_cycles);
+            $display("  Total Instructions  : %0d", total_inst_retired);
+            if (total_active_cycles > 0) begin
+                ipc_x1000 = (total_inst_retired * 1000) / total_active_cycles;
+                $display("  Active IPC          : %0d.%03d  (meaningful)",
+                         ipc_x1000/1000, ipc_x1000%1000);
+            end
+            $display("  Total Branches      : %0d", total_branches);
+            $display("  Total Mispredicts   : %0d", total_mispredicts);
+            if (total_branches > 0) begin
+                acc_x10  = ((total_branches - total_mispredicts) * 1000) / total_branches;
+                mpki_x10 = (total_mispredicts * 10000) / total_inst_retired;
+                $display("  Branch Accuracy     : %0d.%01d%%",
+                         acc_x10/10, acc_x10%10);
+                $display("  MPKI                : %0d.%01d",
+                         mpki_x10/10, mpki_x10%10);
+            end
+            $display("  Provider distribution:");
+            $display("    T0 (bimodal)      : %0d", total_t0_cnt);
+            $display("    T1 (h=4)          : %0d", total_t1_cnt);
+            $display("    T2 (h=16)         : %0d", total_t2_cnt);
+            $display("    T3 (h=64)         : %0d", total_t3_cnt);
+            $display("##############################################\n");
+        end
         $finish;
     end
 
     // Timeout safety
     initial begin
-        #200000;
+        #500000;                       // 加大到 50K cycle 容納 Test 11/12 大 budget
         $display("TIMEOUT! CPU might be stuck.");
         $finish;
     end

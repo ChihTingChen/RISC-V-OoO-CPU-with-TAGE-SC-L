@@ -46,6 +46,51 @@ package riscv_pkg;
     } br_op_t;
 
     // =======================================================
+    // 3.5 BPU (TAGE) typedef — 因為 inst_pkt_t 會用到 bpu_meta_t，先宣告
+    // =======================================================
+
+    // ---------- Table 0: bimodal, no tag, no u ----------
+    typedef struct packed {
+        logic [1:0]  ctr;            // 2-bit 飽和 counter，MSB=prediction
+    } t0_entry_t;                    // total: 2-bit
+
+    // ---------- Table 1: tagged, h=4 ----------
+    typedef struct packed {
+        logic [7:0]        tag;      // 8-bit partial fingerprint
+        logic signed [2:0] ctr;      // 3-bit signed counter, -4 ~ +3
+        logic [1:0]        u;        // 2-bit useful counter
+    } t1_entry_t;                    // total: 13-bit
+
+    // ---------- Table 2: tagged, h=16 ----------
+    typedef struct packed {
+        logic [9:0]        tag;      // 10-bit
+        logic signed [2:0] ctr;
+        logic [1:0]        u;
+    } t2_entry_t;                    // total: 15-bit
+
+    // ---------- Table 3: tagged, h=64 ----------
+    typedef struct packed {
+        logic [11:0]       tag;      // 12-bit
+        logic signed [2:0] ctr;
+        logic [1:0]        u;
+    } t3_entry_t;                    // total: 17-bit
+
+    // ---------- BPU 預測 metadata（穿越 pipeline）----------
+    // Note: table sizes scaled-down for FF-based synthesis (no SRAM macro in GPDK045)
+    typedef struct packed {
+        logic         pred_taken;    // 1-bit：BPU 給出的方向預測
+        logic [1:0]   provider;      // 2-bit：00=T0, 01=T1, 10=T2, 11=T3
+        logic [1:0]   alt;           // 2-bit：次長 match
+        logic [6:0]   idx0;          // T0 index：PC[8:2]，128 entries
+        logic [4:0]   idx1;          // T1 index：5-bit，32 entries
+        logic [4:0]   idx2;          // T2 index：32 entries
+        logic [4:0]   idx3;          // T3 index：32 entries
+        logic [7:0]   tag1;          // T1 tag（predict 時算的）
+        logic [9:0]   tag2;          // T2 tag
+        logic [11:0]  tag3;          // T3 tag
+    } bpu_meta_t;                    // total: 57-bit
+
+    // =======================================================
     // 4. 🔥 萬能指令包裹 (Instruction Packet)
     // =======================================================
     typedef struct packed {
@@ -80,7 +125,10 @@ package riscv_pkg;
         logic        is_jump;    // 是否是 JAL/JALR 指令
 
         // --- LW/SW所需要信號 ---
-        logic [2:0] lsq_id; 
+        logic [2:0] lsq_id;
+
+        // --- BPU 預測 metadata（fetch 塞，retire 用）---
+        bpu_meta_t  bpu_meta;
     } inst_pkt_t;
     // =======================================================
     // 5. ROB 專屬條目 (只存退休需要的必要資訊)
@@ -98,6 +146,9 @@ package riscv_pkg;
         logic        is_load;
         logic        is_store;
         logic [2:0]  lsq_id;
+
+        // --- BPU 預測 metadata（retire 時送回 BPU）---
+        bpu_meta_t   bpu_meta;
     } rob_entry_t;
     // =======================================================
     // 5. CDB區域
@@ -138,6 +189,8 @@ package riscv_pkg;
         logic       is_store;
         logic [2:0] lsq_id;
         logic       is_jump;
+        // BPU prediction (ALU 用來算 bad_branch)
+        logic       predicted_taken;
     }rs_entry_t;
     // =======================================================
     // 7. LSQ區域
@@ -146,18 +199,19 @@ typedef struct packed {
     logic        valid;        // 這格有沒有指令
     logic [3:0]  rob_id;       // 連回 ROB
     logic        is_load;      // 1=LW, 0=SW
-    
+
     // Address
     logic        addr_ready;   // ALU 算完了沒
     logic [31:0] addr;         // effective address
-    
+
     // Data
     logic        data_ready;
     logic [31:0] data;
-    
+
     // LW 專用
     phys_reg_t   pp_rd;        // 結果要寫的 phys reg
     logic        completed;    // 已上 CDB
     logic [31:0] pc;           // violation 時跳回的 PC
 } lsq_entry_t;
+
 endpackage

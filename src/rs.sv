@@ -77,6 +77,7 @@ module rs(
                 rs[vacancy].is_store  <= renamed_pkt.is_store;
                 rs[vacancy].lsq_id    <= renamed_pkt.lsq_id;
                 rs[vacancy].is_jump   <= renamed_pkt.is_jump;
+                rs[vacancy].predicted_taken <= renamed_pkt.bpu_meta.pred_taken;
                 
                 if (rs1_ready_from_prf) begin
                     rs[vacancy].rs1_value <= rs1_data_from_prf;
