@@ -1747,3 +1747,1170 @@ run -all
 #    Time: 180555 ns  Iteration: 1  Instance: /tb_Top
 # 1
 # Break in Module tb_Top at tb_Top.sv line 569
+vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 21:43:04 on Jun 15,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling module dmem
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: bpu.sv(29): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package bpu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module bpu
+# ** Warning: bpu.sv(29): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# ** Warning: fetch.sv(17): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# ** Warning: fetch.sv(17): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package lsq_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module lsq
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 21:43:05 on Jun 15,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 22
+vsim -gui work.tb_Top
+# End time: 21:43:09 on Jun 15,2026, Elapsed time: 4:33:57
+# Errors: 0, Warnings: 1
+# vsim -gui work.tb_Top 
+# Start time: 21:43:10 on Jun 15,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.bpu_sv_unit
+# Loading work.bpu
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+# Loading work.lsq_sv_unit
+# Loading work.lsq
+# Loading work.dmem
+run -all
+# 
+##############################################
+#  OoO RV32I CPU - Full Regression (13 tests) #
+##############################################
+# 
+# ========== Test 1: Basic ALU Operations ==========
+#   x1 = 10, PASS
+#   x2 = 3, PASS
+#   x3 = 13, PASS
+#   x4 = 7, PASS
+#   x5 = 2, PASS
+#   x6 = 11, PASS
+#   x7 = 9, PASS
+#   x8 = 80, PASS
+#   x9 = 1, PASS
+#   x10 = 1, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=66  Inst=64  IPC=0.969  (excluding idle)
+# 
+# ========== Test 2: Fibonacci (10 iterations, 9 mispredicts) ==========
+#   x1 = 89, PASS
+#   x2 = 144, PASS
+#   x3 = 0, PASS
+#   x4 = 144, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=129  Inst=109  IPC=0.844  (excluding idle)
+#   [PERF] Branches=10  Mispredicts=9  Accuracy=10.0%  MPKI=82.5
+#   [PERF] Provider:  T0=4  T1=5  T2=0  T3=1
+# 
+# ========== Test 3: All 4 Signed Branches ==========
+#   x1 = 5, PASS
+#   x2 = 5, PASS
+#   x3 = 10, PASS
+#   x4 = 4294967293, PASS
+#   x5 = 1, PASS
+#   x6 = 1, PASS
+#   x7 = 1, PASS
+#   x8 = 11, PASS
+#   Result: 8 PASS, 0 FAIL
+#   [PERF] ActiveCycles=69  Inst=61  IPC=0.884  (excluding idle)
+#   [PERF] Branches=4  Mispredicts=3  Accuracy=25.0%  MPKI=49.1
+#   [PERF] Provider:  T0=3  T1=0  T2=0  T3=1
+# 
+# ========== Test 4: Unsigned Compare & Branch ==========
+#   x1 = 4294967295, PASS
+#   x2 = 1, PASS
+#   x3 = 0, PASS
+#   x4 = 1, PASS
+#   x5 = 1, PASS
+#   x6 = 0, PASS
+#   x7 = 70, PASS
+#   x8 = 0, PASS
+#   x9 = 80, PASS
+#   Result: 9 PASS, 0 FAIL
+#   [PERF] ActiveCycles=68  Inst=62  IPC=0.911  (excluding idle)
+#   [PERF] Branches=2  Mispredicts=2  Accuracy=0.0%  MPKI=32.2
+#   [PERF] Provider:  T0=1  T1=0  T2=0  T3=1
+# 
+# ========== Test 5: Jump and Link Instructions ==========
+#   x1 = 5, PASS
+#   x2 = 8, PASS
+#   x3 = 0, PASS
+#   x4 = 10, PASS
+#   x5 = 28, PASS
+#   x6 = 28, PASS
+#   x7 = 20, PASS
+#   x8 = 36, PASS
+#   x9 = 0, PASS
+#   x10 = 30, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=70  Inst=62  IPC=0.885  (excluding idle)
+# 
+# ========== Test 6: LW from Pre-loaded dmem ==========
+#   x1 = 40, PASS
+#   x2 = 305419896, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 7: SW Store to dmem ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 3 PASS, 0 FAIL
+#   [PERF] ActiveCycles=67  Inst=64  IPC=0.955  (excluding idle)
+# 
+# ========== Test 8: Store-to-Load Forwarding ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 9: Multi-Store Forward LATEST ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 200, PASS
+#   x4 = 300, PASS
+#   x5 = 300, PASS
+#   dmem[10] = 300, PASS
+#   Result: 6 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 10: BPU Stress (100-iter loop) ==========
+#   x1: got 19, expected 100, FAIL
+#   x2 = 100, PASS
+#   Result: 1 PASS, 1 FAIL
+#   [PERF] ActiveCycles=1498  Inst=302  IPC=0.201  (excluding idle)
+#   [PERF] Branches=119  Mispredicts=118  Accuracy=0.8%  MPKI=390.7
+#   [PERF] Provider:  T0=9  T1=24  T2=49  T3=37
+# 
+# ========== Test 11: BPU Pattern - Alternating (period 2) ==========
+#   x1: got 25, expected 60, FAIL
+#   x2 = 60, PASS
+#   x4: got 13, expected 30, FAIL
+#   x5: got 12, expected 30, FAIL
+#   Result: 1 PASS, 3 FAIL
+#   [PERF] ActiveCycles=5000  Inst=1304  IPC=0.260  (excluding idle)
+#   [PERF] Branches=513  Mispredicts=407  Accuracy=20.6%  MPKI=312.1
+#   [PERF] Provider:  T0=128  T1=48  T2=164  T3=173
+# 
+# ========== Test 12: BPU Pattern - 4-cycle (period 4) ==========
+#   x1: got 8, expected 64, FAIL
+#   x2 = 64, PASS
+#   x4: got 6, expected 48, FAIL
+#   x5: got 2, expected 16, FAIL
+#   Result: 1 PASS, 3 FAIL
+#   [PERF] ActiveCycles=5000  Inst=1326  IPC=0.265  (excluding idle)
+#   [PERF] Branches=550  Mispredicts=397  Accuracy=27.8%  MPKI=299.3
+#   [PERF] Provider:  T0=96  T1=191  T2=140  T3=123
+# 
+# ========== Test 13: BPU Pattern - 16-cycle (period 16) ==========
+#   x1 = 80, PASS
+#   x2 = 80, PASS
+#   x4 = 75, PASS
+#   x5 = 5, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=2662  Inst=1064  IPC=0.399  (excluding idle)
+#   [PERF] Branches=470  Mispredicts=318  Accuracy=32.3%  MPKI=298.8
+#   [PERF] Provider:  T0=51  T1=102  T2=289  T3=28
+# 
+##############################################
+#            OVERALL CORRECTNESS             #
+##############################################
+#   TOTAL PASS : 63
+#   TOTAL FAIL : 7
+#   !!!!!!!!  7 FAILURES DETECTED  !!!!!!!!
+# 
+##############################################
+#          OVERALL PERFORMANCE (BPU)         #
+##############################################
+#   Total Cycles (raw)  : 18000
+#   Total Active Cycles : 14875  (idle excluded)
+#   Total Instructions  : 4610
+#   Active IPC          : 0.309  (meaningful)
+#   Total Branches      : 1668
+#   Total Mispredicts   : 1254
+#   Branch Accuracy     : 24.8%
+#   MPKI                : 272.0
+#   Provider distribution:
+#     T0 (bimodal)      : 292
+#     T1 (h=4)          : 370
+#     T2 (h=16)         : 642
+#     T3 (h=64)         : 364
+##############################################
+# 
+# ** Note: $finish    : tb_Top.sv(569)
+#    Time: 180555 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 569
+vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 21:47:00 on Jun 15,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling module dmem
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: bpu.sv(29): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package bpu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module bpu
+# ** Warning: bpu.sv(29): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package lsq_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module lsq
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 21:47:01 on Jun 15,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 22
+vsim -gui work.tb_Top
+# End time: 21:47:06 on Jun 15,2026, Elapsed time: 0:03:56
+# Errors: 0, Warnings: 1
+# vsim -gui work.tb_Top 
+# Start time: 21:47:06 on Jun 15,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.bpu_sv_unit
+# Loading work.bpu
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+# Loading work.lsq_sv_unit
+# Loading work.lsq
+# Loading work.dmem
+run -all
+# 
+##############################################
+#  OoO RV32I CPU - Full Regression (13 tests) #
+##############################################
+# 
+# ========== Test 1: Basic ALU Operations ==========
+#   x1 = 10, PASS
+#   x2 = 3, PASS
+#   x3 = 13, PASS
+#   x4 = 7, PASS
+#   x5 = 2, PASS
+#   x6 = 11, PASS
+#   x7 = 9, PASS
+#   x8 = 80, PASS
+#   x9 = 1, PASS
+#   x10 = 1, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=66  Inst=64  IPC=0.969  (excluding idle)
+# 
+# ========== Test 2: Fibonacci (10 iterations, 9 mispredicts) ==========
+#   x1 = 89, PASS
+#   x2 = 144, PASS
+#   x3 = 0, PASS
+#   x4 = 144, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=117  Inst=109  IPC=0.931  (excluding idle)
+#   [PERF] Branches=10  Mispredicts=3  Accuracy=70.0%  MPKI=27.5
+#   [PERF] Provider:  T0=9  T1=0  T2=0  T3=1
+# 
+# ========== Test 3: All 4 Signed Branches ==========
+#   x1 = 5, PASS
+#   x2 = 5, PASS
+#   x3 = 10, PASS
+#   x4 = 4294967293, PASS
+#   x5 = 1, PASS
+#   x6 = 1, PASS
+#   x7 = 1, PASS
+#   x8 = 11, PASS
+#   Result: 8 PASS, 0 FAIL
+#   [PERF] ActiveCycles=65  Inst=61  IPC=0.938  (excluding idle)
+#   [PERF] Branches=4  Mispredicts=1  Accuracy=75.0%  MPKI=16.3
+#   [PERF] Provider:  T0=2  T1=0  T2=0  T3=2
+# 
+# ========== Test 4: Unsigned Compare & Branch ==========
+#   x1 = 4294967295, PASS
+#   x2 = 1, PASS
+#   x3 = 0, PASS
+#   x4 = 1, PASS
+#   x5 = 1, PASS
+#   x6 = 0, PASS
+#   x7 = 70, PASS
+#   x8 = 0, PASS
+#   x9 = 80, PASS
+#   Result: 9 PASS, 0 FAIL
+#   [PERF] ActiveCycles=64  Inst=62  IPC=0.968  (excluding idle)
+#   [PERF] Branches=2  Mispredicts=0  Accuracy=100.0%  MPKI=0.0
+#   [PERF] Provider:  T0=0  T1=0  T2=0  T3=2
+# 
+# ========== Test 5: Jump and Link Instructions ==========
+#   x1 = 5, PASS
+#   x2 = 8, PASS
+#   x3 = 0, PASS
+#   x4 = 10, PASS
+#   x5 = 28, PASS
+#   x6 = 28, PASS
+#   x7 = 20, PASS
+#   x8 = 36, PASS
+#   x9 = 0, PASS
+#   x10 = 30, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=70  Inst=62  IPC=0.885  (excluding idle)
+# 
+# ========== Test 6: LW from Pre-loaded dmem ==========
+#   x1 = 40, PASS
+#   x2 = 305419896, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 7: SW Store to dmem ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 3 PASS, 0 FAIL
+#   [PERF] ActiveCycles=67  Inst=64  IPC=0.955  (excluding idle)
+# 
+# ========== Test 8: Store-to-Load Forwarding ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 9: Multi-Store Forward LATEST ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 200, PASS
+#   x4 = 300, PASS
+#   x5 = 300, PASS
+#   dmem[10] = 300, PASS
+#   Result: 6 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 10: BPU Stress (100-iter loop) ==========
+#   x1 = 100, PASS
+#   x2 = 100, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=1494  Inst=524  IPC=0.350  (excluding idle)
+#   [PERF] Branches=200  Mispredicts=4  Accuracy=98.0%  MPKI=7.6
+#   [PERF] Provider:  T0=196  T1=0  T2=0  T3=4
+# 
+# ========== Test 11: BPU Pattern - Alternating (period 2) ==========
+#   x1 = 60, PASS
+#   x2 = 60, PASS
+#   x4 = 30, PASS
+#   x5 = 30, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4558  Inst=1548  IPC=0.339  (excluding idle)
+#   [PERF] Branches=600  Mispredicts=64  Accuracy=89.3%  MPKI=41.3
+#   [PERF] Provider:  T0=453  T1=81  T2=26  T3=40
+# 
+# ========== Test 12: BPU Pattern - 4-cycle (period 4) ==========
+#   x1 = 64, PASS
+#   x2 = 64, PASS
+#   x4 = 48, PASS
+#   x5 = 16, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4688  Inst=1700  IPC=0.362  (excluding idle)
+#   [PERF] Branches=704  Mispredicts=53  Accuracy=92.4%  MPKI=31.1
+#   [PERF] Provider:  T0=476  T1=201  T2=15  T3=12
+# 
+# ========== Test 13: BPU Pattern - 16-cycle (period 16) ==========
+#   x1 = 80, PASS
+#   x2 = 80, PASS
+#   x4 = 75, PASS
+#   x5 = 5, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=2064  Inst=1064  IPC=0.515  (excluding idle)
+#   [PERF] Branches=470  Mispredicts=19  Accuracy=95.9%  MPKI=17.8
+#   [PERF] Provider:  T0=213  T1=180  T2=66  T3=11
+# 
+##############################################
+#            OVERALL CORRECTNESS             #
+##############################################
+#   TOTAL PASS : 70
+#   TOTAL FAIL : 0
+#   >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<
+# 
+##############################################
+#          OVERALL PERFORMANCE (BPU)         #
+##############################################
+#   Total Cycles (raw)  : 18000
+#   Total Active Cycles : 13499  (idle excluded)
+#   Total Instructions  : 5450
+#   Active IPC          : 0.403  (meaningful)
+#   Total Branches      : 1990
+#   Total Mispredicts   : 144
+#   Branch Accuracy     : 92.7%
+#   MPKI                : 26.4
+#   Provider distribution:
+#     T0 (bimodal)      : 1349
+#     T1 (h=4)          : 462
+#     T2 (h=16)         : 107
+#     T3 (h=64)         : 72
+##############################################
+# 
+# ** Note: $finish    : tb_Top.sv(569)
+#    Time: 180555 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 569
+vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 22:44:43 on Jun 15,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling module dmem
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: bpu.sv(37): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package bpu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module bpu
+# ** Warning: bpu.sv(37): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package lsq_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module lsq
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 22:44:43 on Jun 15,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 22
+vsim -gui work.tb_Top
+# End time: 22:44:52 on Jun 15,2026, Elapsed time: 0:57:46
+# Errors: 0, Warnings: 1
+# vsim -gui work.tb_Top 
+# Start time: 22:44:52 on Jun 15,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.bpu_sv_unit
+# Loading work.bpu
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+# Loading work.lsq_sv_unit
+# Loading work.lsq
+# Loading work.dmem
+run -all
+# 
+##############################################
+#  OoO RV32I CPU - Full Regression (14 tests) #
+##############################################
+# 
+# ========== Test 1: Basic ALU Operations ==========
+#   x1 = 10, PASS
+#   x2 = 3, PASS
+#   x3 = 13, PASS
+#   x4 = 7, PASS
+#   x5 = 2, PASS
+#   x6 = 11, PASS
+#   x7 = 9, PASS
+#   x8 = 80, PASS
+#   x9 = 1, PASS
+#   x10 = 1, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=66  Inst=64  IPC=0.969  (excluding idle)
+# 
+# ========== Test 2: Fibonacci (10 iterations, 9 mispredicts) ==========
+#   x1 = 89, PASS
+#   x2 = 144, PASS
+#   x3 = 0, PASS
+#   x4 = 144, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=117  Inst=109  IPC=0.931  (excluding idle)
+#   [PERF] Branches=10  Mispredicts=3  Accuracy=70.0%  MPKI=27.5
+#   [PERF] Provider:  T0=9  T1=0  T2=0  T3=1
+# 
+# ========== Test 3: All 4 Signed Branches ==========
+#   x1 = 5, PASS
+#   x2 = 5, PASS
+#   x3 = 10, PASS
+#   x4 = 4294967293, PASS
+#   x5 = 1, PASS
+#   x6 = 1, PASS
+#   x7 = 1, PASS
+#   x8 = 11, PASS
+#   Result: 8 PASS, 0 FAIL
+#   [PERF] ActiveCycles=65  Inst=61  IPC=0.938  (excluding idle)
+#   [PERF] Branches=4  Mispredicts=1  Accuracy=75.0%  MPKI=16.3
+#   [PERF] Provider:  T0=2  T1=0  T2=0  T3=2
+# 
+# ========== Test 4: Unsigned Compare & Branch ==========
+#   x1 = 4294967295, PASS
+#   x2 = 1, PASS
+#   x3 = 0, PASS
+#   x4 = 1, PASS
+#   x5 = 1, PASS
+#   x6 = 0, PASS
+#   x7 = 70, PASS
+#   x8 = 0, PASS
+#   x9 = 80, PASS
+#   Result: 9 PASS, 0 FAIL
+#   [PERF] ActiveCycles=64  Inst=62  IPC=0.968  (excluding idle)
+#   [PERF] Branches=2  Mispredicts=0  Accuracy=100.0%  MPKI=0.0
+#   [PERF] Provider:  T0=0  T1=0  T2=0  T3=2
+# 
+# ========== Test 5: Jump and Link Instructions ==========
+#   x1 = 5, PASS
+#   x2 = 8, PASS
+#   x3 = 0, PASS
+#   x4 = 10, PASS
+#   x5 = 28, PASS
+#   x6 = 28, PASS
+#   x7 = 20, PASS
+#   x8 = 36, PASS
+#   x9 = 0, PASS
+#   x10 = 30, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=70  Inst=62  IPC=0.885  (excluding idle)
+# 
+# ========== Test 6: LW from Pre-loaded dmem ==========
+#   x1 = 40, PASS
+#   x2 = 305419896, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 7: SW Store to dmem ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 3 PASS, 0 FAIL
+#   [PERF] ActiveCycles=67  Inst=64  IPC=0.955  (excluding idle)
+# 
+# ========== Test 8: Store-to-Load Forwarding ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 9: Multi-Store Forward LATEST ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 200, PASS
+#   x4 = 300, PASS
+#   x5 = 300, PASS
+#   dmem[10] = 300, PASS
+#   Result: 6 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 10: BPU Stress (100-iter loop) ==========
+#   x1 = 100, PASS
+#   x2 = 100, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=1494  Inst=524  IPC=0.350  (excluding idle)
+#   [PERF] Branches=200  Mispredicts=4  Accuracy=98.0%  MPKI=7.6
+#   [PERF] Provider:  T0=196  T1=0  T2=0  T3=4
+# 
+# ========== Test 11: BPU Pattern - Alternating (period 2) ==========
+#   x1 = 60, PASS
+#   x2 = 60, PASS
+#   x4 = 30, PASS
+#   x5 = 30, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4452  Inst=1548  IPC=0.347  (excluding idle)
+#   [PERF] Branches=600  Mispredicts=11  Accuracy=98.1%  MPKI=7.1
+#   [PERF] Provider:  T0=453  T1=81  T2=26  T3=40
+# 
+# ========== Test 12: BPU Pattern - 4-cycle (period 4) ==========
+#   x1 = 64, PASS
+#   x2 = 64, PASS
+#   x4 = 48, PASS
+#   x5 = 16, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4696  Inst=1700  IPC=0.362  (excluding idle)
+#   [PERF] Branches=704  Mispredicts=57  Accuracy=91.9%  MPKI=33.5
+#   [PERF] Provider:  T0=476  T1=201  T2=15  T3=12
+# 
+# ========== Test 13: BPU Pattern - 16-cycle (period 16) ==========
+#   x1 = 80, PASS
+#   x2 = 80, PASS
+#   x4 = 75, PASS
+#   x5 = 5, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=2064  Inst=1064  IPC=0.515  (excluding idle)
+#   [PERF] Branches=470  Mispredicts=19  Accuracy=95.9%  MPKI=17.8
+#   [PERF] Provider:  T0=213  T1=180  T2=66  T3=11
+# 
+# ========== Test 14: SC-friendly (~69% biased branch) ==========
+#   x1 = 64, PASS
+#   x2 = 64, PASS
+#   x4 = 44, PASS
+#   x5 = 20, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=5000  Inst=1830  IPC=0.366  (excluding idle)
+#   [PERF] Branches=592  Mispredicts=144  Accuracy=75.6%  MPKI=78.6
+#   [PERF] Provider:  T0=470  T1=107  T2=12  T3=3
+# 
+##############################################
+#            OVERALL CORRECTNESS             #
+##############################################
+#   TOTAL PASS : 74
+#   TOTAL FAIL : 0
+#   >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<
+# 
+##############################################
+#          OVERALL PERFORMANCE (BPU)         #
+##############################################
+#   Total Cycles (raw)  : 23000
+#   Total Active Cycles : 18401  (idle excluded)
+#   Total Instructions  : 7280
+#   Active IPC          : 0.395  (meaningful)
+#   Total Branches      : 2582
+#   Total Mispredicts   : 239
+#   Branch Accuracy     : 90.7%
+#   MPKI                : 32.8
+#   Provider distribution:
+#     T0 (bimodal)      : 1819
+#     T1 (h=4)          : 569
+#     T2 (h=16)         : 119
+#     T3 (h=64)         : 75
+##############################################
+# 
+# ** Note: $finish    : tb_Top.sv(607)
+#    Time: 230595 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 607
+vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 22:47:43 on Jun 15,2026
+# vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv 
+# -- Compiling package riscv_pkg
+# -- Compiling package imem_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module imem
+# -- Compiling module dmem
+# -- Compiling package prf_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module prf
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rat
+# ** Warning: rat.sv(7): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package arat_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module arat
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package free_list_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module free_list
+# ** Warning: free_list.sv(10): (vlog-13314) Defaulting port 'arat_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: bpu.sv(37): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package bpu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module bpu
+# ** Warning: bpu.sv(37): (vlog-13314) Defaulting port 'update_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package decode_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module decode
+# ** Warning: decode.sv(5): (vlog-13314) Defaulting port 'IF_bpu_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package alu_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module alu
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package fetch_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module fetch
+# ** Warning: fetch.sv(9): (vlog-13314) Defaulting port 'bpu_predict_meta' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rename_stage_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rename_stage
+# ** Warning: rename_stage.sv(4): (vlog-13314) Defaulting port 'rename_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rename_stage.sv(11): (vlog-13314) Defaulting port 'arat_recover_rat' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rob_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rob
+# ** Warning: rob.sv(9): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package rs_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module rs
+# ** Warning: rs.sv(6): (vlog-13314) Defaulting port 'renamed_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: rs.sv(15): (vlog-13314) Defaulting port 'cdb_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package lsq_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module lsq
+# ** Warning: lsq.sv(7): (vlog-13314) Defaulting port 'dispatch_pkt' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# -- Compiling package Top_sv_unit
+# -- Importing package riscv_pkg
+# -- Compiling module Top
+# -- Compiling module tb_Top
+# 
+# Top level modules:
+# 	tb_Top
+# End time: 22:47:43 on Jun 15,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 22
+vsim -gui work.tb_Top
+# End time: 22:47:49 on Jun 15,2026, Elapsed time: 0:02:57
+# Errors: 0, Warnings: 1
+# vsim -gui work.tb_Top 
+# Start time: 22:47:49 on Jun 15,2026
+# Loading sv_std.std
+# Loading work.tb_Top
+# Loading work.riscv_pkg
+# Loading work.Top_sv_unit
+# Loading work.Top
+# Loading work.fetch_sv_unit
+# Loading work.fetch
+# Loading work.bpu_sv_unit
+# Loading work.bpu
+# Loading work.imem_sv_unit
+# Loading work.imem
+# Loading work.decode_sv_unit
+# Loading work.decode
+# Loading work.rename_stage_sv_unit
+# Loading work.rename_stage
+# Loading work.free_list_sv_unit
+# Loading work.free_list
+# Loading work.rat_sv_unit
+# Loading work.rat
+# Loading work.rob_sv_unit
+# Loading work.rob
+# Loading work.rs_sv_unit
+# Loading work.rs
+# Loading work.prf_sv_unit
+# Loading work.prf
+# Loading work.arat_sv_unit
+# Loading work.arat
+# Loading work.alu_sv_unit
+# Loading work.alu
+# Loading work.lsq_sv_unit
+# Loading work.lsq
+# Loading work.dmem
+run -all
+# 
+##############################################
+#  OoO RV32I CPU - Full Regression (14 tests) #
+##############################################
+# 
+# ========== Test 1: Basic ALU Operations ==========
+#   x1 = 10, PASS
+#   x2 = 3, PASS
+#   x3 = 13, PASS
+#   x4 = 7, PASS
+#   x5 = 2, PASS
+#   x6 = 11, PASS
+#   x7 = 9, PASS
+#   x8 = 80, PASS
+#   x9 = 1, PASS
+#   x10 = 1, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=66  Inst=64  IPC=0.969  (excluding idle)
+# 
+# ========== Test 2: Fibonacci (10 iterations, 9 mispredicts) ==========
+#   x1 = 89, PASS
+#   x2 = 144, PASS
+#   x3 = 0, PASS
+#   x4 = 144, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=117  Inst=109  IPC=0.931  (excluding idle)
+#   [PERF] Branches=10  Mispredicts=3  Accuracy=70.0%  MPKI=27.5
+#   [PERF] Provider:  T0=9  T1=0  T2=0  T3=1
+#   [PERF] LP used=0  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 3: All 4 Signed Branches ==========
+#   x1 = 5, PASS
+#   x2 = 5, PASS
+#   x3 = 10, PASS
+#   x4 = 4294967293, PASS
+#   x5 = 1, PASS
+#   x6 = 1, PASS
+#   x7 = 1, PASS
+#   x8 = 11, PASS
+#   Result: 8 PASS, 0 FAIL
+#   [PERF] ActiveCycles=65  Inst=61  IPC=0.938  (excluding idle)
+#   [PERF] Branches=4  Mispredicts=1  Accuracy=75.0%  MPKI=16.3
+#   [PERF] Provider:  T0=2  T1=0  T2=0  T3=2
+#   [PERF] LP used=0  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 4: Unsigned Compare & Branch ==========
+#   x1 = 4294967295, PASS
+#   x2 = 1, PASS
+#   x3 = 0, PASS
+#   x4 = 1, PASS
+#   x5 = 1, PASS
+#   x6 = 0, PASS
+#   x7 = 70, PASS
+#   x8 = 0, PASS
+#   x9 = 80, PASS
+#   Result: 9 PASS, 0 FAIL
+#   [PERF] ActiveCycles=64  Inst=62  IPC=0.968  (excluding idle)
+#   [PERF] Branches=2  Mispredicts=0  Accuracy=100.0%  MPKI=0.0
+#   [PERF] Provider:  T0=0  T1=0  T2=0  T3=2
+#   [PERF] LP used=0  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 5: Jump and Link Instructions ==========
+#   x1 = 5, PASS
+#   x2 = 8, PASS
+#   x3 = 0, PASS
+#   x4 = 10, PASS
+#   x5 = 28, PASS
+#   x6 = 28, PASS
+#   x7 = 20, PASS
+#   x8 = 36, PASS
+#   x9 = 0, PASS
+#   x10 = 30, PASS
+#   Result: 10 PASS, 0 FAIL
+#   [PERF] ActiveCycles=70  Inst=62  IPC=0.885  (excluding idle)
+# 
+# ========== Test 6: LW from Pre-loaded dmem ==========
+#   x1 = 40, PASS
+#   x2 = 305419896, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 7: SW Store to dmem ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 3 PASS, 0 FAIL
+#   [PERF] ActiveCycles=67  Inst=64  IPC=0.955  (excluding idle)
+# 
+# ========== Test 8: Store-to-Load Forwarding ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 100, PASS
+#   dmem[10] = 100, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 9: Multi-Store Forward LATEST ==========
+#   x1 = 40, PASS
+#   x2 = 100, PASS
+#   x3 = 200, PASS
+#   x4 = 300, PASS
+#   x5 = 300, PASS
+#   dmem[10] = 300, PASS
+#   Result: 6 PASS, 0 FAIL
+#   [PERF] ActiveCycles=82  Inst=64  IPC=0.780  (excluding idle)
+# 
+# ========== Test 10: BPU Stress (100-iter loop) ==========
+#   x1 = 100, PASS
+#   x2 = 100, PASS
+#   Result: 2 PASS, 0 FAIL
+#   [PERF] ActiveCycles=1494  Inst=524  IPC=0.350  (excluding idle)
+#   [PERF] Branches=200  Mispredicts=4  Accuracy=98.0%  MPKI=7.6
+#   [PERF] Provider:  T0=196  T1=0  T2=0  T3=4
+#   [PERF] LP used=0  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 11: BPU Pattern - Alternating (period 2) ==========
+#   x1 = 60, PASS
+#   x2 = 60, PASS
+#   x4 = 30, PASS
+#   x5 = 30, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4452  Inst=1548  IPC=0.347  (excluding idle)
+#   [PERF] Branches=600  Mispredicts=11  Accuracy=98.1%  MPKI=7.1
+#   [PERF] Provider:  T0=453  T1=81  T2=26  T3=40
+#   [PERF] LP used=293  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 12: BPU Pattern - 4-cycle (period 4) ==========
+#   x1 = 64, PASS
+#   x2 = 64, PASS
+#   x4 = 48, PASS
+#   x5 = 16, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=4696  Inst=1700  IPC=0.362  (excluding idle)
+#   [PERF] Branches=704  Mispredicts=57  Accuracy=91.9%  MPKI=33.5
+#   [PERF] Provider:  T0=476  T1=201  T2=15  T3=12
+#   [PERF] LP used=64  SC used=5  (overrides of TAGE)
+# 
+# ========== Test 13: BPU Pattern - 16-cycle (period 16) ==========
+#   x1 = 80, PASS
+#   x2 = 80, PASS
+#   x4 = 75, PASS
+#   x5 = 5, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=2064  Inst=1064  IPC=0.515  (excluding idle)
+#   [PERF] Branches=470  Mispredicts=19  Accuracy=95.9%  MPKI=17.8
+#   [PERF] Provider:  T0=213  T1=180  T2=66  T3=11
+#   [PERF] LP used=0  SC used=0  (overrides of TAGE)
+# 
+# ========== Test 14: SC-friendly (~69% biased branch) ==========
+#   x1 = 64, PASS
+#   x2 = 64, PASS
+#   x4 = 44, PASS
+#   x5 = 20, PASS
+#   Result: 4 PASS, 0 FAIL
+#   [PERF] ActiveCycles=5000  Inst=1830  IPC=0.366  (excluding idle)
+#   [PERF] Branches=592  Mispredicts=144  Accuracy=75.6%  MPKI=78.6
+#   [PERF] Provider:  T0=470  T1=107  T2=12  T3=3
+#   [PERF] LP used=213  SC used=6  (overrides of TAGE)
+# 
+##############################################
+#            OVERALL CORRECTNESS             #
+##############################################
+#   TOTAL PASS : 74
+#   TOTAL FAIL : 0
+#   >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<
+# 
+##############################################
+#          OVERALL PERFORMANCE (BPU)         #
+##############################################
+#   Total Cycles (raw)  : 23000
+#   Total Active Cycles : 18401  (idle excluded)
+#   Total Instructions  : 7280
+#   Active IPC          : 0.395  (meaningful)
+#   Total Branches      : 2582
+#   Total Mispredicts   : 239
+#   Branch Accuracy     : 90.7%
+#   MPKI                : 32.8
+#   Provider distribution:
+#     T0 (bimodal)      : 1819
+#     T1 (h=4)          : 569
+#     T2 (h=16)         : 119
+#     T3 (h=64)         : 75
+#   SC-L override counts:
+#     LP (Loop)         : 570  (22% of branches)
+#     SC (Statistical)  : 11  (0% of branches)
+##############################################
+# 
+# ** Note: $finish    : tb_Top.sv(624)
+#    Time: 230595 ns  Iteration: 1  Instance: /tb_Top
+# 1
+# Break in Module tb_Top at tb_Top.sv line 624

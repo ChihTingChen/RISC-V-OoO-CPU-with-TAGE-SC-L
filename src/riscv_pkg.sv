@@ -75,20 +75,38 @@ package riscv_pkg;
         logic [1:0]        u;
     } t3_entry_t;                    // total: 17-bit
 
-    // ---------- BPU 預測 metadata（穿越 pipeline）----------
-    // Note: table sizes scaled-down for FF-based synthesis (no SRAM macro in GPDK045)
+    // ---------- BPU 預測 metadata (TAGE-SC-L)（穿越 pipeline）----------
     typedef struct packed {
-        logic         pred_taken;    // 1-bit：BPU 給出的方向預測
-        logic [1:0]   provider;      // 2-bit：00=T0, 01=T1, 10=T2, 11=T3
-        logic [1:0]   alt;           // 2-bit：次長 match
-        logic [6:0]   idx0;          // T0 index：PC[8:2]，128 entries
-        logic [4:0]   idx1;          // T1 index：5-bit，32 entries
-        logic [4:0]   idx2;          // T2 index：32 entries
-        logic [4:0]   idx3;          // T3 index：32 entries
-        logic [7:0]   tag1;          // T1 tag（predict 時算的）
-        logic [9:0]   tag2;          // T2 tag
-        logic [11:0]  tag3;          // T3 tag
-    } bpu_meta_t;                    // total: 57-bit
+        // ===== Final prediction (fetch + ALU 用) =====
+        logic         pred_taken;       // 最終方向預測（TAGE/LP/SC merge 後）
+
+        // ===== TAGE-only prediction (for TAGE update logic) =====
+        logic         tage_pred_taken;  // TAGE 自己的預測
+
+        // ===== TAGE provider / alt =====
+        logic [1:0]   provider;         // 00=T0, 01=T1, 10=T2, 11=T3
+        logic [1:0]   alt;              // 次長 match
+
+        // ===== TAGE indices / tags =====
+        logic [6:0]   idx0;
+        logic [4:0]   idx1;
+        logic [4:0]   idx2;
+        logic [4:0]   idx3;
+        logic [7:0]   tag1;
+        logic [9:0]   tag2;
+        logic [11:0]  tag3;
+
+        // ===== Loop Predictor info =====
+        logic         lp_used;          // 1=LP override 了 TAGE
+        logic [2:0]   lp_idx;           // LP table index (8 entries)
+        logic [9:0]   lp_tag;           // LP tag (predict 時算的)
+
+        // ===== Statistical Corrector info =====
+        logic         sc_used;          // 1=SC override 了 TAGE
+        logic [3:0]   sc_g_idx;         // SC GHIST index (16 entries)
+        logic [3:0]   sc_p_idx;         // SC PATH  index (16 entries)
+        logic [3:0]   sc_b_idx;         // SC BIAS  index (16 entries)
+    } bpu_meta_t;                       // total: ~76-bit
 
     // =======================================================
     // 4. 🔥 萬能指令包裹 (Instruction Packet)

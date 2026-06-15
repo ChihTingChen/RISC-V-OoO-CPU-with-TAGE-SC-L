@@ -18,11 +18,13 @@ module tb_Top;
     int test_cycles, test_active_cycles, test_inst_retired;
     int test_branches, test_mispredicts;
     int test_t0_cnt, test_t1_cnt, test_t2_cnt, test_t3_cnt;
+    int test_lp_used, test_sc_used;
 
     // ===== Performance counters (cumulative across all tests) =====
     int total_cycles, total_active_cycles, total_inst_retired;
     int total_branches, total_mispredicts;
     int total_t0_cnt, total_t1_cnt, total_t2_cnt, total_t3_cnt;
+    int total_lp_used, total_sc_used;
 
     // ===== Counter update (monitor DUT signals every clock) =====
     // 重要：resetn=0 時自動清 test counters，避免 task 用 blocking、
@@ -38,6 +40,8 @@ module tb_Top;
             test_t1_cnt        <= 0;
             test_t2_cnt        <= 0;
             test_t3_cnt        <= 0;
+            test_lp_used       <= 0;
+            test_sc_used       <= 0;
         end
         else begin
             test_cycles <= test_cycles + 1;
@@ -55,6 +59,8 @@ module tb_Top;
                     2'b10: test_t2_cnt <= test_t2_cnt + 1;
                     2'b11: test_t3_cnt <= test_t3_cnt + 1;
                 endcase
+                if (dut.rob.bpu_update_meta.lp_used) test_lp_used <= test_lp_used + 1;
+                if (dut.rob.bpu_update_meta.sc_used) test_sc_used <= test_sc_used + 1;
             end
         end
     end
@@ -111,6 +117,8 @@ module tb_Top;
         total_t1_cnt        = total_t1_cnt        + test_t1_cnt;
         total_t2_cnt        = total_t2_cnt        + test_t2_cnt;
         total_t3_cnt        = total_t3_cnt        + test_t3_cnt;
+        total_lp_used       = total_lp_used       + test_lp_used;
+        total_sc_used       = total_sc_used       + test_sc_used;
 
         $display("  Result: %0d PASS, %0d FAIL", test_pass, test_fail);
         if (test_active_cycles > 0) begin
@@ -130,6 +138,8 @@ module tb_Top;
                      mpki_x10/10, mpki_x10%10);
             $display("  [PERF] Provider:  T0=%0d  T1=%0d  T2=%0d  T3=%0d",
                      test_t0_cnt, test_t1_cnt, test_t2_cnt, test_t3_cnt);
+            $display("  [PERF] LP used=%0d  SC used=%0d  (overrides of TAGE)",
+                     test_lp_used, test_sc_used);
         end
     endtask
 
@@ -499,7 +509,44 @@ module tb_Top;
     endtask
 
     // ============================================================
-    // Main: run all 13 tests
+    // Test 14: SC-friendly biased branch (no clear pattern, ~69% T)
+    //   Branch outcome depends on (x3 += 17) & 31 < 22
+    //   Low 5 bits cycle through 0-31 in period-32 sequence
+    //   T0 saturates to T (because mostly T), but accuracy ~69%
+    //   SC can use bias table to capture statistical偏向
+    //
+    //   Expected: x4 = 44 (T count), x5 = 20 (NT count), x1 = 64
+    // ============================================================
+    task run_test14();
+        start_test("Test 14: SC-friendly (~69% biased branch)");
+        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0      ; i = 0
+        dut.imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64     ; N = 64
+        dut.imem.imem[2]  = 32'h04900193;  // addi x3, x0, 73     ; seed
+        dut.imem.imem[3]  = 32'h00000213;  // addi x4, x0, 0      ; T count
+        dut.imem.imem[4]  = 32'h00000293;  // addi x5, x0, 0      ; NT count
+        dut.imem.imem[5]  = 32'h01600493;  // addi x9, x0, 22     ; threshold
+        // loop at imem[6]:
+        dut.imem.imem[6]  = 32'h01118193;  // addi x3, x3, 17     ; x3 += 17
+        dut.imem.imem[7]  = 32'h01F1F393;  // andi x7, x3, 31     ; x7 = x3 & 31
+        dut.imem.imem[8]  = 32'h0093C663;  // blt  x7, x9, +12    ; if x7<22 → jump
+        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1      ; NT++
+        dut.imem.imem[10] = 32'h00000463;  // beq  x0, x0, +8     ; jump cont
+        dut.imem.imem[11] = 32'h00120213;  // addi x4, x4, 1      ; T++
+        dut.imem.imem[12] = 32'h00108093;  // addi x1, x1, 1      ; i++
+        dut.imem.imem[13] = 32'hFE2092E3;  // bne  x1, x2, -28    ; loop
+        fill_nop(14);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(5000) @(posedge clk);
+        check_reg(1, 32'd64);
+        check_reg(2, 32'd64);
+        check_reg(4, 32'd44);
+        check_reg(5, 32'd20);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Main: run all 14 tests
     // ============================================================
     initial begin
         // Initial reset
@@ -509,7 +556,7 @@ module tb_Top;
         @(posedge clk);
 
         $display("\n##############################################");
-        $display("#  OoO RV32I CPU - Full Regression (13 tests) #");
+        $display("#  OoO RV32I CPU - Full Regression (14 tests) #");
         $display("##############################################");
 
         run_test1();
@@ -525,6 +572,7 @@ module tb_Top;
         run_test11();   // BPU pattern: alternating period 2 (exercises T1)
         run_test12();   // BPU pattern: 4-cycle (exercises T1)
         run_test13();   // BPU pattern: 16-cycle (exercises T2)
+        run_test14();   // SC-friendly: 69% biased branch (exercises SC)
 
         begin : overall_report
             int ipc_x1000, acc_x10, mpki_x10;
@@ -564,6 +612,13 @@ module tb_Top;
             $display("    T1 (h=4)          : %0d", total_t1_cnt);
             $display("    T2 (h=16)         : %0d", total_t2_cnt);
             $display("    T3 (h=64)         : %0d", total_t3_cnt);
+            $display("  SC-L override counts:");
+            $display("    LP (Loop)         : %0d  (%0d%% of branches)",
+                     total_lp_used,
+                     (total_branches > 0) ? (total_lp_used * 100 / total_branches) : 0);
+            $display("    SC (Statistical)  : %0d  (%0d%% of branches)",
+                     total_sc_used,
+                     (total_branches > 0) ? (total_sc_used * 100 / total_branches) : 0);
             $display("##############################################\n");
         end
         $finish;
