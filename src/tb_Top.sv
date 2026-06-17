@@ -546,7 +546,44 @@ module tb_Top;
     endtask
 
     // ============================================================
-    // Main: run all 14 tests
+    // Test 15: Nested loop (LP showcase)
+    //   Outer 30 × inner 16 = 480 inner iters
+    //   Inner bne fires 480 × T + 30 × NT
+    //   - TAGE alone: T0 saturates strong T → mispredict every inner exit (~30)
+    //   - LP: learns trip count=16 after 2-3 outer iters → predicts 100% from iter 4+
+    //   - Expected: SC-L saves ~25 mispredicts on this test alone
+    //
+    //   Expected: x10=30, x11=30, x12=16, x13=16, x14=480
+    // ============================================================
+    task run_test15();
+        start_test("Test 15: Nested loop (LP advantage)");
+        dut.imem.imem[0]  = 32'h01E00513;  // addi x10, x0, 30   ; outer count
+        dut.imem.imem[1]  = 32'h00000593;  // addi x11, x0, 0    ; i = 0
+        dut.imem.imem[2]  = 32'h00000713;  // addi x14, x0, 0    ; counter
+        // outer_loop:
+        dut.imem.imem[3]  = 32'h01000613;  // addi x12, x0, 16   ; inner count
+        dut.imem.imem[4]  = 32'h00000693;  // addi x13, x0, 0    ; j = 0
+        // inner_loop:
+        dut.imem.imem[5]  = 32'h00170713;  // addi x14, x14, 1   ; counter++
+        dut.imem.imem[6]  = 32'h00168693;  // addi x13, x13, 1   ; j++
+        dut.imem.imem[7]  = 32'hFEC69CE3;  // bne x13, x12, -8   ; inner bne
+        // after inner:
+        dut.imem.imem[8]  = 32'h00158593;  // addi x11, x11, 1   ; i++
+        dut.imem.imem[9]  = 32'hFEA594E3;  // bne x11, x10, -24  ; outer bne
+        fill_nop(10);
+        resetn = 1'b1;
+        @(posedge clk);
+        repeat(5000) @(posedge clk);
+        check_reg(10, 32'd30);
+        check_reg(11, 32'd30);
+        check_reg(12, 32'd16);
+        check_reg(13, 32'd16);
+        check_reg(14, 32'd480);
+        finish_test();
+    endtask
+
+    // ============================================================
+    // Main: run all 15 tests
     // ============================================================
     initial begin
         // Initial reset
@@ -556,7 +593,7 @@ module tb_Top;
         @(posedge clk);
 
         $display("\n##############################################");
-        $display("#  OoO RV32I CPU - Full Regression (14 tests) #");
+        $display("#  OoO RV32I CPU - Full Regression (15 tests) #");
         $display("##############################################");
 
         run_test1();
@@ -573,6 +610,7 @@ module tb_Top;
         run_test12();   // BPU pattern: 4-cycle (exercises T1)
         run_test13();   // BPU pattern: 16-cycle (exercises T2)
         run_test14();   // SC-friendly: 69% biased branch (exercises SC)
+        run_test15();   // Nested loop: LP showcase (TAGE-SC-L 大勝)
 
         begin : overall_report
             int ipc_x1000, acc_x10, mpki_x10;
