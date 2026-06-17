@@ -9,14 +9,12 @@ module fetch(
 
     output logic [31:0] IF_pc,
     output logic [31:0] IF_instr_out,
-    // metadata 給 decode
     output bpu_meta_t   IF_bpu_meta_out
 );
     logic [31:0] next_pc;
 
-
     wire [6:0]  opcode  = IF_instr[6:0];
-    wire        is_cond = (opcode == 7'b1100011);     // OPC_BRANCH
+    wire        is_cond = (opcode == 7'b1100011); 
     wire [31:0] imm_b   = {{19{IF_instr[31]}}, IF_instr[7], IF_instr[30:25],
                            IF_instr[11:8], 1'b0};
 
@@ -35,10 +33,10 @@ module fetch(
             next_pc = IF_pc;
         end
         else if (is_cond && bpu_predict_meta.pred_taken) begin
-            next_pc = predicted_target;
+            next_pc = predicted_target;           
         end
         else begin
-            next_pc = IF_pc + 4;
+            next_pc = IF_pc + 4;             
         end
     end
 

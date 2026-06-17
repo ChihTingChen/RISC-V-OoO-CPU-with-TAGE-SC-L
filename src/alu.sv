@@ -7,12 +7,12 @@ module alu (
     input  logic        issue_en,
     input  alu_op_t     alu_op,
     input  br_op_t      br_op,
-    input  logic [31:0] op1_data,     
-    input  logic [31:0] op2_data,     
-    input  logic [31:0] inst_pc,      
-    input  phys_reg_t   pp_rd,        
-    input  logic [3:0]  rob_id,       
-    input  logic        is_branch,    
+    input  logic [31:0] op1_data,    
+    input  logic [31:0] op2_data,    
+    input  logic [31:0] inst_pc,     
+    input  phys_reg_t   pp_rd,       
+    input  logic [3:0]  rob_id,      
+    input  logic        is_branch,   
     input  logic [31:0] inst_imm,
     input  logic is_load,
     input  logic is_store,
@@ -99,7 +99,7 @@ module alu (
             alu_mem_valid    = 1'b1;
             alu_mem_lsq_id   = lsq_id;
             alu_mem_addr     = op1_data + inst_imm; 
-            alu_mem_data     = op2_data;            
+            alu_mem_data     = op2_data;           
             alu_mem_is_load  = is_load;
         end
     end

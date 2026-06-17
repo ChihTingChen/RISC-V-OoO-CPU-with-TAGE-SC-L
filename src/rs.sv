@@ -6,7 +6,6 @@ module rs(
     input inst_pkt_t renamed_pkt,//input from rename stage
     input logic dispatch_en,
     output rs_full,
-    // 當指令進站時，如果 PRF 已經有現成資料，要直接讀進來
     input  logic [31:0] rs1_data_from_prf,
     input  logic        rs1_ready_from_prf,
     input  logic [31:0] rs2_data_from_prf,
@@ -61,7 +60,6 @@ module rs(
             if(issue_found)begin
                 rs[issue_address].busy <= '0; 
             end
-            // 既有值寫入
             if (renamed_pkt.valid && dispatch_en) begin
                 rs[vacancy].busy      <= 1'b1;
                 rs[vacancy].pp_rs1    <= renamed_pkt.pp_rs1;
@@ -108,7 +106,7 @@ module rs(
                     rs[vacancy].rs2_ready <= 1'b0;
                 end
 
-            end // if(renamed_pkt.valid && dispatch_en) 的 end 應該在這裡
+            end
             for(int k=0;k<8;k++)begin
                 if(rs[k].busy && !rs[k].rs1_ready && cdb_in.valid)begin
                     rs[k].rs1_value <= (rs[k].pp_rs1 == cdb_in.tag) ? cdb_in.data : rs[k].rs1_value;

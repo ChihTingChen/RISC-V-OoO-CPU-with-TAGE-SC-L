@@ -30,12 +30,12 @@ module rob (
     output logic        empty,
     output logic [3:0]  head_ptr,
     output logic [3:0]  tail_ptr,
-    output logic        rob_flush, 
-    output logic [31:0] rob_redirect_pc,
-    // ===== BPU update interface =====
-    output logic        bpu_update_en,            
-    output logic        bpu_update_actual_taken,  
-    output bpu_meta_t   bpu_update_meta           
+    output logic        rob_flush,  
+    output logic [31:0] rob_redirect_pc, 
+
+    output logic        bpu_update_en,           
+    output logic        bpu_update_actual_taken, 
+    output bpu_meta_t   bpu_update_meta          
 );
     rob_entry_t entries [0:15];//ROB有16格
     logic [3:0] head, tail;//兩個指標
@@ -67,7 +67,6 @@ module rob (
                 entries[cdb_rob_id].bad_branch <= cdb_bad_branch;
                 entries[cdb_rob_id].target_pc <= cdb_target_pc;
             end
-            // SW 不上 CDB，靠 LSQ 直接通知
             if(sw_ready_valid)begin
                 entries[sw_ready_rob_id].ready <= 1;
             end

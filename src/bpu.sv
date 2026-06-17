@@ -24,7 +24,7 @@ module bpu (
     logic [7:0]  aging_cnt;
 
     // =========================================================================
-    // Storage: Loop Predictor (8 entries)
+    // Storage: Loop Predictor
     // =========================================================================
     typedef struct packed {
         logic        valid;
@@ -36,7 +36,7 @@ module bpu (
     lp_entry_t lp_table [0:7];
 
     // =========================================================================
-    // Storage: Statistical Corrector (3 tables × 16 entries × 6-bit signed)
+    // Storage: Statistical Corrector
     // =========================================================================
     logic signed [5:0] sc_ghist [0:15];
     logic signed [5:0] sc_path  [0:15];
@@ -45,7 +45,7 @@ module bpu (
     logic [15:0] path_hist;
 
     // =========================================================================
-    // Saturating helpers (existing)
+    // Saturating helpers
     // =========================================================================
     function automatic logic [1:0] sat_up_2(logic [1:0] x);
         return (x == 2'b11) ? 2'b11 : x + 1'b1;
@@ -60,6 +60,7 @@ module bpu (
         return (x == -3'sd4) ? -3'sd4 : x - 3'sd1;
     endfunction
 
+    // SC 6-bit signed saturate (-32 ~ +31)
     function automatic logic signed [5:0] sat_up_6s(logic signed [5:0] x);
         return (x == 6'sd31) ? 6'sd31 : x + 6'sd1;
     endfunction
@@ -67,12 +68,13 @@ module bpu (
         return (x == -6'sd32) ? -6'sd32 : x - 6'sd1;
     endfunction
 
+    // LP 10-bit unsigned saturate
     function automatic logic [9:0] sat_up_10(logic [9:0] x);
         return (x == 10'h3FF) ? 10'h3FF : x + 10'd1;
     endfunction
 
     // =========================================================================
-    // TAGE predict path (same as before)
+    // TAGE predict path
     // =========================================================================
     logic [4:0]  folded_idx_t2;
     logic [9:0]  folded_tag_t2;
@@ -151,7 +153,7 @@ module bpu (
     logic tage_weak_w;
     always_comb begin
         unique case (provider_w)
-            2'b00:   tage_weak_w = (e0.ctr == 2'b01) || (e0.ctr == 2'b10);  // weak
+            2'b00:   tage_weak_w = (e0.ctr == 2'b01) || (e0.ctr == 2'b10);
             2'b01:   tage_weak_w = (e1.ctr == 3'sd0) || (e1.ctr == -3'sd1);
             2'b10:   tage_weak_w = (e2.ctr == 3'sd0) || (e2.ctr == -3'sd1);
             2'b11:   tage_weak_w = (e3.ctr == 3'sd0) || (e3.ctr == -3'sd1);
@@ -200,7 +202,7 @@ module bpu (
     assign sc_strong_w = (sc_score >= 8'sd8) || (sc_score <= -8'sd8);
 
     // =========================================================================
-    // Final prediction: merge TAGE / LP / SC
+    // Final prediction
     // =========================================================================
     logic final_pred_w;
     logic lp_used_w, sc_used_w;
@@ -246,7 +248,7 @@ module bpu (
     end
 
     // =========================================================================
-    // Update path-combinational helpers
+    // Update path - combinational helpers
     // =========================================================================
     logic update_alt_pred;
     logic update_provider_correct;
@@ -367,7 +369,6 @@ module bpu (
                     default: ;
                 endcase
             end
-
 
             begin : lp_update_block
                 logic [2:0] li;

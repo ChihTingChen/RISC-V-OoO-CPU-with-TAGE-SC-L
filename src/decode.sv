@@ -2,7 +2,7 @@ import riscv_pkg::*;
 module decode(
     input [31:0]        IF_pc,
     input [31:0]        IF_instr,
-    input  bpu_meta_t   IF_bpu_meta,        // 從 fetch 來的 BPU metadata
+    input  bpu_meta_t   IF_bpu_meta,
     output inst_pkt_t   decoded_pkt
 );
     wire [6:0] opcode = IF_instr[6:0];
@@ -17,9 +17,9 @@ module decode(
  
     //put the decoded information into the packet
     always_comb begin
-        decoded_pkt = '0; // default value
+        decoded_pkt = '0; 
         decoded_pkt.pc = IF_pc;
-        decoded_pkt.valid = 1'b1; // assume all instructions are valid for now
+        decoded_pkt.valid = 1'b1; 
         decoded_pkt.instr = IF_instr;
         decoded_pkt.bpu_meta = IF_bpu_meta;
         decoded_pkt.rs1_addr = IF_instr[19:15];

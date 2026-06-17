@@ -4,32 +4,39 @@ module lsq (
     input  logic        resetn,
     input  logic        flush,
     
-    input  inst_pkt_t   dispatch_pkt,   
-    input  logic        dispatch_en,    
-    output logic [2:0]  lsq_id_alloc,   
-    output logic        lsq_full,       
+    input  inst_pkt_t   dispatch_pkt,    
+    input  logic        dispatch_en,     
+    output logic [2:0]  lsq_id_alloc,    
+    output logic        lsq_full,        
     
+    // -------------- Retire interface --------------
     input  logic        retire_en,       
     input  logic [2:0]  retire_lsq_id,   
     input  logic        retire_is_load,  
     input  logic        retire_is_store, 
 
+    // --------------ALU to LSQ ---------------------
     input  logic        alu_mem_valid,
     input  logic [2:0]  alu_mem_lsq_id,
     input  logic [31:0] alu_mem_addr,
     input  logic [31:0] alu_mem_data,
     input  logic        alu_mem_is_load,
 
-    output logic [31:0] dmem_addr,   
-    output logic [31:0] dmem_waddr,  
-    output logic [31:0] dmem_wdata,  
-    output logic        dmem_wen,    
-    input  logic [31:0] dmem_rdata,  
+    // --------------LSQ to dmem ---------------------
+    output logic [31:0] dmem_addr,  
+    output logic [31:0] dmem_waddr, 
+    output logic [31:0] dmem_wdata, 
+    output logic        dmem_wen,   
+    input  logic [31:0] dmem_rdata, 
+    // --------------cdb------------------------------
     output cdb_pkt_t lsq_cdb_out,
-    input  logic     alu_cdb_valid,   
+    input  logic     alu_cdb_valid, 
+
+    // --------------SW ready to ROB ---------------------
     output logic        sw_ready_valid,
     output logic [3:0]  sw_ready_rob_id,
 
+    // --------------Memory Order Violation ---------------------
     output logic        mem_violation,
     output logic [31:0] mem_violation_pc
 );
@@ -66,10 +73,10 @@ module lsq (
         if (lw_exec_found) begin
             for (int i = 0; i < 8; i++) begin
                 if (lsq[i].valid
-                    && !lsq[i].is_load                                 
-                    && lsq[i].data_ready                               
-                    && lsq[i].addr == lsq[lw_exec_idx].addr            
-                    && ((i[2:0] - head) < (lw_exec_idx - head)))       
+                    && !lsq[i].is_load                                  
+                    && lsq[i].data_ready                                
+                    && lsq[i].addr == lsq[lw_exec_idx].addr             
+                    && ((i[2:0] - head) < (lw_exec_idx - head)))        
                 begin
                     if (!fwd_found || ((i[2:0] - head) > fwd_best_age)) begin
                         fwd_found    = 1'b1;
@@ -95,9 +102,10 @@ module lsq (
     
     always_comb begin
         lsq_cdb_out = '0;
-        if (lw_exec_found && !alu_cdb_valid) begin
+        if (lw_exec_found && !alu_cdb_valid) begin 
             lsq_cdb_out.valid  = 1'b1;
-            lsq_cdb_out.data   = fwd_found ? fwd_data : dmem_rdata;
+            lsq_cdb_out.data   = fwd_found ? fwd_data : dmem_rdata; 
+            lsq_cdb_out.tag    = lsq[lw_exec_idx].pp_rd;
             lsq_cdb_out.rob_id = lsq[lw_exec_idx].rob_id;
         end
     end
@@ -182,7 +190,6 @@ module lsq (
     assign lsq_id_alloc = tail;
     assign lsq_full     = (counter == 4'd8);
 
-    // ----- SW retire 寫 dmem -----
     assign dmem_waddr = lsq[retire_lsq_id].addr;
     assign dmem_wdata = lsq[retire_lsq_id].data;
     assign dmem_wen   = retire_en && retire_is_store;

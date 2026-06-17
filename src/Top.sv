@@ -31,22 +31,22 @@ logic        alu_mem_valid;
 logic [2:0]  alu_mem_lsq_id;
 logic [31:0] alu_mem_addr, alu_mem_data;
 logic        alu_mem_is_load;
-// LSQto dmem
+// LSQ to dmem
 logic [31:0] dmem_addr, dmem_waddr, dmem_wdata, dmem_rdata;
 logic        dmem_wen;
 // LSQ to ROB
 logic        sw_ready_valid;
 logic [3:0]  sw_ready_rob_id;
-// LSQ to ROB
+// LSQ to ROB/Fetch
 logic        mem_violation;
 logic [31:0] mem_violation_pc;
 logic [31:0] rob_redirect_pc_raw;
 
-bpu_meta_t   bpu_predict_meta;          // BPU → fetch
-bpu_meta_t   IF_bpu_meta_out;           // fetch → decode
-logic        bpu_update_en;             // ROB → BPU
-logic        bpu_update_actual_taken;   // ROB → BPU
-bpu_meta_t   bpu_update_meta;           // ROB → BPU
+bpu_meta_t   bpu_predict_meta;          
+bpu_meta_t   IF_bpu_meta_out;           
+logic        bpu_update_en;             
+logic        bpu_update_actual_taken;   
+bpu_meta_t   bpu_update_meta;           
 
 //IF instantiate
 fetch IF(
