@@ -19,9 +19,6 @@ module arat(
             end
         end
     end
-    // arat_recover_rat 必須「combinational 反映正在發生的 retire」
-    // 否則 JAL/JALR 同 cycle retire + flush 時，free_list rebuild 會把
-    // 它的 pp_rd 誤判成 free → 被下條指令重新 alloc → 覆蓋 JAL 寫的 PC+4
     always_comb begin
         arat_recover_rat = arat_table;
         if (commit_from_rob && (rd_addr != 5'b0))

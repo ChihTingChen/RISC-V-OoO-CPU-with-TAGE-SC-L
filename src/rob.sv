@@ -30,13 +30,12 @@ module rob (
     output logic        empty,
     output logic [3:0]  head_ptr,
     output logic [3:0]  tail_ptr,
-    output logic        rob_flush,        // 告訴全後端：通通清空！
-    output logic [31:0] rob_redirect_pc,  // 告訴 Fetch：請從這個正確地址開始抓
-
+    output logic        rob_flush, 
+    output logic [31:0] rob_redirect_pc,
     // ===== BPU update interface =====
-    output logic        bpu_update_en,            // 該 cycle 有 conditional branch retire
-    output logic        bpu_update_actual_taken,  // 真實 taken 結果
-    output bpu_meta_t   bpu_update_meta           // predict 時存的 metadata
+    output logic        bpu_update_en,            
+    output logic        bpu_update_actual_taken,  
+    output bpu_meta_t   bpu_update_meta           
 );
     rob_entry_t entries [0:15];//ROB有16格
     logic [3:0] head, tail;//兩個指標
@@ -142,9 +141,6 @@ module rob (
     assign head_ptr = head;
     assign tail_ptr = tail;
 
-    // ===== BPU update interface =====
-    // 只有 conditional branch retire 時才更新 BPU（JAL/JALR 不算）
-    // actual_taken 用「預測 XOR 預測錯」推出來
     always_comb begin
         bpu_update_en           = 1'b0;
         bpu_update_actual_taken = 1'b0;

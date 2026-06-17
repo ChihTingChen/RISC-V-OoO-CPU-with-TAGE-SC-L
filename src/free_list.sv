@@ -15,7 +15,6 @@ module free_list (
     logic [4:0] wp, rp;
     logic [5:0] counter;
 
-    // ===== Combinational：算 ARAT 佔用 mask =====
     logic [63:0] arat_mask;
     always_comb begin
         arat_mask = 64'b0;
@@ -23,7 +22,6 @@ module free_list (
             arat_mask[arat_in[k]] = 1'b1;
     end
 
-    // ===== Combinational：算 flush 後要塞進 FIFO 的 phys reg list =====
     logic [5:0] flush_fifo [0:31];
     logic [5:0] flush_idx;
     always_comb begin
@@ -37,7 +35,6 @@ module free_list (
         end
     end
 
-    // ===== Sequential block =====
     always_ff@(posedge clk or negedge resetn)begin
         if(!resetn)begin
             for(int i=0; i<32; i++) FIFO[i] <= 6'(i+32);

@@ -21,28 +21,27 @@ cdb_pkt_t alu_cdb_raw;
 cdb_pkt_t lsq_cdb_out;
 rs_entry_t data_to_ALU;
 phys_reg_t arat_recover_rat [0:31];
-// LSQ 相關訊號
+//LSQ 相關訊號
 logic [2:0]  lsq_id_alloc;
 logic        lsq_full;
 logic        retire_is_load, retire_is_store;
 logic [2:0]  retire_lsq_id;
-// ALU → LSQ
+// ALU to LSQ
 logic        alu_mem_valid;
 logic [2:0]  alu_mem_lsq_id;
 logic [31:0] alu_mem_addr, alu_mem_data;
 logic        alu_mem_is_load;
-// LSQ ↔ dmem
+// LSQto dmem
 logic [31:0] dmem_addr, dmem_waddr, dmem_wdata, dmem_rdata;
 logic        dmem_wen;
-// LSQ → ROB: SW ready
+// LSQ to ROB
 logic        sw_ready_valid;
 logic [3:0]  sw_ready_rob_id;
-// LSQ → ROB/Fetch: memory order violation
+// LSQ to ROB
 logic        mem_violation;
 logic [31:0] mem_violation_pc;
 logic [31:0] rob_redirect_pc_raw;
 
-// ===== BPU 連線 =====
 bpu_meta_t   bpu_predict_meta;          // BPU → fetch
 bpu_meta_t   IF_bpu_meta_out;           // fetch → decode
 logic        bpu_update_en;             // ROB → BPU
@@ -228,7 +227,6 @@ lsq lsq(
     .mem_violation(mem_violation),
     .mem_violation_pc(mem_violation_pc)
 );
-// 兩條 CDB merge：ALU 優先，LSQ 次之
 always_comb begin
     if (alu_cdb_raw.valid)
         common_data_bus = alu_cdb_raw;

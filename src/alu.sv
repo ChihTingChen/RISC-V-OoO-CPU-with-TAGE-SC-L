@@ -4,23 +4,22 @@ module alu (
     input  logic        clk,
     input  logic        resetn,
 
-    // --- 來自 RS (Issue Stage) 的發射封包 ---
     input  logic        issue_en,
     input  alu_op_t     alu_op,
     input  br_op_t      br_op,
-    input  logic [31:0] op1_data,     // PRF 讀出的真實數據 1
-    input  logic [31:0] op2_data,     // PRF 讀出的真實數據 2 (或是立即數)
-    input  logic [31:0] inst_pc,      // 此指令的 PC (算 BNE 猜錯地址用)
-    input  phys_reg_t   pp_rd,        // 目的地實體暫存器編號
-    input  logic [3:0]  rob_id,       // 指令在 ROB 的位置
-    input  logic        is_branch,    // 標記這是不是一條分支指令
+    input  logic [31:0] op1_data,     
+    input  logic [31:0] op2_data,     
+    input  logic [31:0] inst_pc,      
+    input  phys_reg_t   pp_rd,        
+    input  logic [3:0]  rob_id,       
+    input  logic        is_branch,    
     input  logic [31:0] inst_imm,
     input  logic is_load,
     input  logic is_store,
     input  logic [2:0] lsq_id,
     input  logic is_jump,
-    input  logic predicted_taken,        // BPU 對這條 branch 的方向預測（0=NT, 1=T）
-    output cdb_pkt_t    alu_cdb_out,   // 直接丟出一整包
+    input  logic predicted_taken,     
+    output cdb_pkt_t    alu_cdb_out,  
     output logic        alu_mem_valid,
     output logic [2:0]  alu_mem_lsq_id,
     output logic [31:0] alu_mem_addr,
@@ -73,18 +72,11 @@ module alu (
             alu_cdb_out.rob_id= rob_id;
             if(is_load || is_store) alu_cdb_out = '0;
             else if (is_jump) begin
-                // JAL/JALR：rd = PC+4，bad_branch=1 強制 flush 跳到 target
-                // JAL: decode 把 imm 預先加 PC 了，所以 op1=0 + imm = pc + imm_j ✓
-                // JALR: op1 = rs1, imm = imm_i, target = rs1 + imm ✓
                 alu_cdb_out.data       = inst_pc + 32'd4;
                 alu_cdb_out.bad_branch = 1'b1;
                 alu_cdb_out.target_pc  = op1_data + inst_imm;
             end
             else if(is_branch)begin
-                // BPU 整合：bad_branch = 預測 ≠ 實際
-                //         target_pc = 「真實該去的位置」
-                //         真實 taken  → pc + imm
-                //         真實 NT     → pc + 4
                 alu_cdb_out.data       = '0;
                 alu_cdb_out.bad_branch = (branch_taken != predicted_taken);
                 alu_cdb_out.target_pc  = branch_taken ? (inst_pc + inst_imm)
@@ -106,8 +98,8 @@ module alu (
         if (issue_en && (is_load||is_store)) begin
             alu_mem_valid    = 1'b1;
             alu_mem_lsq_id   = lsq_id;
-            alu_mem_addr     = op1_data + inst_imm;   // addr
-            alu_mem_data     = op2_data;              // SW 的 store data（LW 不會用）
+            alu_mem_addr     = op1_data + inst_imm; 
+            alu_mem_data     = op2_data;            
             alu_mem_is_load  = is_load;
         end
     end

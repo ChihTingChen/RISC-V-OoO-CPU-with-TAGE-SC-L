@@ -21,7 +21,7 @@ module decode(
         decoded_pkt.pc = IF_pc;
         decoded_pkt.valid = 1'b1; // assume all instructions are valid for now
         decoded_pkt.instr = IF_instr;
-        decoded_pkt.bpu_meta = IF_bpu_meta;   // 把 BPU metadata 塞進 inst_pkt 一起流動
+        decoded_pkt.bpu_meta = IF_bpu_meta;
         decoded_pkt.rs1_addr = IF_instr[19:15];
         decoded_pkt.rs2_addr = IF_instr[24:20];
         decoded_pkt.rd_addr = IF_instr[11:7];
@@ -128,8 +128,6 @@ module decode(
                 decoded_pkt.imm      = imm_s;
                 decoded_pkt.rd_addr  = 5'b0;
             end
-            // AUIPC: rd = PC + (imm << 12)
-            // 用 LUI 套路：rs1=x0、alu_op=ADD、imm 預先加上 PC
             OPC_AUIPC:begin
                 decoded_pkt.rs1_addr = '0;
                 decoded_pkt.rs2_addr = '0;
@@ -139,10 +137,8 @@ module decode(
                 decoded_pkt.alu_op   = ALU_ADD;
                 decoded_pkt.imm      = IF_pc + imm_u;
             end
-            // JAL: PC = PC + imm_j, rd = PC + 4
-            // imm 預先加上 PC，ALU 統一用 (op1=0) + inst_imm 算 target
             OPC_JAL:begin
-                decoded_pkt.rs1_addr = '0;   // 沒 rs1
+                decoded_pkt.rs1_addr = '0;
                 decoded_pkt.rs2_addr = '0;
                 decoded_pkt.uses_rs1 = 1'b0;
                 decoded_pkt.uses_rs2 = 1'b0;
@@ -150,7 +146,6 @@ module decode(
                 decoded_pkt.is_jump  = 1'b1;
                 decoded_pkt.imm      = IF_pc + imm_j;
             end
-            // JALR: PC = rs1 + imm, rd = PC + 4
             OPC_JALR:begin
                 decoded_pkt.uses_rs1 = 1'b1;
                 decoded_pkt.rs2_addr = '0;

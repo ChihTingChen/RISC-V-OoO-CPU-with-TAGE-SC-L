@@ -1,0 +1,11 @@
+# ModelSim simulation artifacts
+src/work/
+src/transcript
+src/*.wlf
+src/modelsim.ini
+src/OoO_CPU.cr.mti
+src/OoO_CPU.mpf
+*.mti
+*.qdb
+*.qpg
+*.qtl
