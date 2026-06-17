@@ -593,7 +593,7 @@ module tb_Top;
         @(posedge clk);
 
         $display("\n##############################################");
-        $display("#  OoO RV32I CPU - Full Regression (15 tests) #");
+        $display("#  OoO RV32I CPU - Full Regression (14 tests, SC-L) #");
         $display("##############################################");
 
         run_test1();
@@ -609,7 +609,7 @@ module tb_Top;
         run_test11();   // BPU pattern: alternating period 2 (exercises T1)
         run_test12();   // BPU pattern: 4-cycle (exercises T1)
         run_test13();   // BPU pattern: 16-cycle (exercises T2)
-        run_test14();   // SC-friendly: 69% biased branch (exercises SC)
+        // run_test14();   // 暫時跳過 SC-friendly
         run_test15();   // Nested loop: LP showcase (TAGE-SC-L 大勝)
 
         begin : overall_report

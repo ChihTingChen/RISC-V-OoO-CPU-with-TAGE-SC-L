@@ -1,6 +1,6 @@
 vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv
 # Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:55:18 on Jun 17,2026
+# Start time: 13:32:02 on Jun 17,2026
 # vlog -reportprogress 300 -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv decode.sv alu.sv fetch.sv rename_stage.sv rob.sv rs.sv lsq.sv Top.sv tb_Top.sv 
 # -- Compiling package riscv_pkg
 # -- Compiling package imem_sv_unit
@@ -72,11 +72,11 @@ vlog -sv riscv_pkg.sv imem.sv dmem.sv prf.sv rat.sv arat.sv free_list.sv bpu.sv 
 # 
 # Top level modules:
 # 	tb_Top
-# End time: 12:55:19 on Jun 17,2026, Elapsed time: 0:00:01
+# End time: 13:32:02 on Jun 17,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 22
 vsim -gui work.tb_Top
 # vsim -gui work.tb_Top 
-# Start time: 12:55:34 on Jun 17,2026
+# Start time: 13:32:15 on Jun 17,2026
 # Loading sv_std.std
 # Loading work.tb_Top
 # Loading work.riscv_pkg
@@ -112,7 +112,7 @@ vsim -gui work.tb_Top
 run -all
 # 
 ##############################################
-#  OoO RV32I CPU - Full Regression (15 tests) #
+#  OoO RV32I CPU - Full Regression (14 tests, SC-L) #
 ##############################################
 # 
 # ========== Test 1: Basic ALU Operations ==========
@@ -258,17 +258,6 @@ run -all
 #   [PERF] Provider:  T0=213  T1=180  T2=66  T3=11
 #   [PERF] LP used=0  SC used=0  (overrides of TAGE)
 # 
-# ========== Test 14: SC-friendly (~69% biased branch) ==========
-#   x1 = 64, PASS
-#   x2 = 64, PASS
-#   x4 = 44, PASS
-#   x5 = 20, PASS
-#   Result: 4 PASS, 0 FAIL
-#   [PERF] ActiveCycles=5000  Inst=1830  IPC=0.366  (excluding idle)
-#   [PERF] Branches=592  Mispredicts=144  Accuracy=75.6%  MPKI=78.6
-#   [PERF] Provider:  T0=470  T1=107  T2=12  T3=3
-#   [PERF] LP used=213  SC used=6  (overrides of TAGE)
-# 
 # ========== Test 15: Nested loop (LP advantage) ==========
 #   x10 = 30, PASS
 #   x11 = 30, PASS
@@ -284,32 +273,32 @@ run -all
 ##############################################
 #            OVERALL CORRECTNESS             #
 ##############################################
-#   TOTAL PASS : 79
+#   TOTAL PASS : 75
 #   TOTAL FAIL : 0
 #   >>>>>>>>>>  ALL TESTS PASSED  <<<<<<<<<<
 # 
 ##############################################
 #          OVERALL PERFORMANCE (BPU)         #
 ##############################################
-#   Total Cycles (raw)  : 28000
-#   Total Active Cycles : 22615  (idle excluded)
-#   Total Instructions  : 10514
-#   Active IPC          : 0.464  (meaningful)
-#   Total Branches      : 3602
-#   Total Mispredicts   : 248
-#   Branch Accuracy     : 93.1%
-#   MPKI                : 23.5
+#   Total Cycles (raw)  : 23000
+#   Total Active Cycles : 17615  (idle excluded)
+#   Total Instructions  : 8684
+#   Active IPC          : 0.492  (meaningful)
+#   Total Branches      : 3010
+#   Total Mispredicts   : 104
+#   Branch Accuracy     : 96.5%
+#   MPKI                : 11.9
 #   Provider distribution:
-#     T0 (bimodal)      : 2056
-#     T1 (h=4)          : 1183
-#     T2 (h=16)         : 261
-#     T3 (h=64)         : 102
+#     T0 (bimodal)      : 1586
+#     T1 (h=4)          : 1076
+#     T2 (h=16)         : 249
+#     T3 (h=64)         : 99
 #   SC-L override counts:
-#     LP (Loop)         : 1482  (41% of branches)
-#     SC (Statistical)  : 11  (0% of branches)
+#     LP (Loop)         : 1269  (42% of branches)
+#     SC (Statistical)  : 5  (0% of branches)
 ##############################################
 # 
 # ** Note: $finish    : tb_Top.sv(662)
-#    Time: 280635 ns  Iteration: 1  Instance: /tb_Top
+#    Time: 230595 ns  Iteration: 1  Instance: /tb_Top
 # 1
 # Break in Module tb_Top at tb_Top.sv line 662
