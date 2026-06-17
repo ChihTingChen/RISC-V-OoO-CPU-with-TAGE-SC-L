@@ -1,10 +1,45 @@
 `timescale 1ns/1ps
 module tb_Top;
     logic clk, resetn;
+
+    // ===== Chip-level memory interface signals =====
+    logic [31:0] imem_addr;
+    logic [31:0] imem_data;
+    logic [31:0] dmem_addr;
+    logic [31:0] dmem_waddr;
+    logic [31:0] dmem_wdata;
+    logic        dmem_wen;
+    logic [31:0] dmem_rdata;
+
     Top dut(
         .clk(clk),
-        .resetn(resetn)
+        .resetn(resetn),
+        .imem_addr(imem_addr),
+        .imem_data(imem_data),
+        .dmem_addr(dmem_addr),
+        .dmem_waddr(dmem_waddr),
+        .dmem_wdata(dmem_wdata),
+        .dmem_wen(dmem_wen),
+        .dmem_rdata(dmem_rdata)
     );
+
+    // ===== Memory models at testbench level =====
+    // Note: instance names avoid module name to prevent hierarchical reference ambiguity
+    imem u_imem(
+        .addr(imem_addr),
+        .data(imem_data)
+    );
+
+    dmem u_dmem(
+        .clk(clk),
+        .resetn(resetn),
+        .wen(dmem_wen),
+        .waddr(dmem_waddr),
+        .addr(dmem_addr),
+        .wdata(dmem_wdata),
+        .rdata(dmem_rdata)
+    );
+
     initial clk = 0;
     always #5 clk = ~clk;
 
@@ -84,12 +119,12 @@ module tb_Top;
     endtask
 
     task check_dmem(input int addr, input logic [31:0] expected);
-        if (dut.dmem.dmem[addr] === expected) begin
+        if (u_dmem.dmem[addr] === expected) begin
             $display("  dmem[%0d] = %0d, PASS", addr, expected);
             test_pass = test_pass + 1;
         end
         else begin
-            $display("  dmem[%0d]: got %0d, expected %0d, FAIL", addr, dut.dmem.dmem[addr], expected);
+            $display("  dmem[%0d]: got %0d, expected %0d, FAIL", addr, u_dmem.dmem[addr], expected);
             test_fail = test_fail + 1;
         end
     endtask
@@ -145,7 +180,7 @@ module tb_Top;
 
     task fill_nop(input int start);
         for (int i = start; i < 64; i++)
-            dut.imem.imem[i] = 32'h00000013;
+            u_imem.imem[i] = 32'h00000013;
     endtask
 
     // ============================================================
@@ -153,16 +188,16 @@ module tb_Top;
     // ============================================================
     task run_test1();
         start_test("Test 1: Basic ALU Operations");
-        dut.imem.imem[0]  = 32'h00A00093;  // addi x1, x0, 10
-        dut.imem.imem[1]  = 32'h00300113;  // addi x2, x0, 3
-        dut.imem.imem[2]  = 32'h002081B3;  // add  x3, x1, x2
-        dut.imem.imem[3]  = 32'h40208233;  // sub  x4, x1, x2
-        dut.imem.imem[4]  = 32'h0020F2B3;  // and  x5, x1, x2
-        dut.imem.imem[5]  = 32'h0020E333;  // or   x6, x1, x2
-        dut.imem.imem[6]  = 32'h0020C3B3;  // xor  x7, x1, x2
-        dut.imem.imem[7]  = 32'h00209433;  // sll  x8, x1, x2
-        dut.imem.imem[8]  = 32'h0020D4B3;  // srl  x9, x1, x2
-        dut.imem.imem[9]  = 32'h00112533;  // slt  x10, x2, x1
+        u_imem.imem[0]  = 32'h00A00093;  // addi x1, x0, 10
+        u_imem.imem[1]  = 32'h00300113;  // addi x2, x0, 3
+        u_imem.imem[2]  = 32'h002081B3;  // add  x3, x1, x2
+        u_imem.imem[3]  = 32'h40208233;  // sub  x4, x1, x2
+        u_imem.imem[4]  = 32'h0020F2B3;  // and  x5, x1, x2
+        u_imem.imem[5]  = 32'h0020E333;  // or   x6, x1, x2
+        u_imem.imem[6]  = 32'h0020C3B3;  // xor  x7, x1, x2
+        u_imem.imem[7]  = 32'h00209433;  // sll  x8, x1, x2
+        u_imem.imem[8]  = 32'h0020D4B3;  // srl  x9, x1, x2
+        u_imem.imem[9]  = 32'h00112533;  // slt  x10, x2, x1
         fill_nop(10);
         resetn = 1'b1;
         @(posedge clk);
@@ -185,14 +220,14 @@ module tb_Top;
     // ============================================================
     task run_test2();
         start_test("Test 2: Fibonacci (10 iterations, 9 mispredicts)");
-        dut.imem.imem[0] = 32'h00100093;  // addi x1, x0, 1
-        dut.imem.imem[1] = 32'h00100113;  // addi x2, x0, 1
-        dut.imem.imem[2] = 32'h00A00193;  // addi x3, x0, 10
-        dut.imem.imem[3] = 32'h00208233;  // loop: add x4, x1, x2
-        dut.imem.imem[4] = 32'h00010093;  // addi x1, x2, 0
-        dut.imem.imem[5] = 32'h00020113;  // addi x2, x4, 0
-        dut.imem.imem[6] = 32'hFFF18193;  // addi x3, x3, -1
-        dut.imem.imem[7] = 32'hFE0198E3;  // bne x3, x0, loop (-16)
+        u_imem.imem[0] = 32'h00100093;  // addi x1, x0, 1
+        u_imem.imem[1] = 32'h00100113;  // addi x2, x0, 1
+        u_imem.imem[2] = 32'h00A00193;  // addi x3, x0, 10
+        u_imem.imem[3] = 32'h00208233;  // loop: add x4, x1, x2
+        u_imem.imem[4] = 32'h00010093;  // addi x1, x2, 0
+        u_imem.imem[5] = 32'h00020113;  // addi x2, x4, 0
+        u_imem.imem[6] = 32'hFFF18193;  // addi x3, x3, -1
+        u_imem.imem[7] = 32'hFE0198E3;  // bne x3, x0, loop (-16)
         fill_nop(8);
         resetn = 1'b1;
         @(posedge clk);
@@ -209,26 +244,26 @@ module tb_Top;
     // ============================================================
     task run_test3();
         start_test("Test 3: All 4 Signed Branches");
-        dut.imem.imem[0]  = 32'h00500093;
-        dut.imem.imem[1]  = 32'h00500113;
-        dut.imem.imem[2]  = 32'h00A00193;
-        dut.imem.imem[3]  = 32'hFFD00213;
-        dut.imem.imem[4]  = 32'h00000293;
-        dut.imem.imem[5]  = 32'h00000313;
-        dut.imem.imem[6]  = 32'h00000393;
-        dut.imem.imem[7]  = 32'h00000413;
-        dut.imem.imem[8]  = 32'h00208463;
-        dut.imem.imem[9]  = 32'h06328293;
-        dut.imem.imem[10] = 32'h00128293;
-        dut.imem.imem[11] = 32'h00124463;
-        dut.imem.imem[12] = 32'h06330313;
-        dut.imem.imem[13] = 32'h00130313;
-        dut.imem.imem[14] = 32'h0041D463;
-        dut.imem.imem[15] = 32'h06338393;
-        dut.imem.imem[16] = 32'h00138393;
-        dut.imem.imem[17] = 32'h00308463;
-        dut.imem.imem[18] = 32'h00140413;
-        dut.imem.imem[19] = 32'h00A40413;
+        u_imem.imem[0]  = 32'h00500093;
+        u_imem.imem[1]  = 32'h00500113;
+        u_imem.imem[2]  = 32'h00A00193;
+        u_imem.imem[3]  = 32'hFFD00213;
+        u_imem.imem[4]  = 32'h00000293;
+        u_imem.imem[5]  = 32'h00000313;
+        u_imem.imem[6]  = 32'h00000393;
+        u_imem.imem[7]  = 32'h00000413;
+        u_imem.imem[8]  = 32'h00208463;
+        u_imem.imem[9]  = 32'h06328293;
+        u_imem.imem[10] = 32'h00128293;
+        u_imem.imem[11] = 32'h00124463;
+        u_imem.imem[12] = 32'h06330313;
+        u_imem.imem[13] = 32'h00130313;
+        u_imem.imem[14] = 32'h0041D463;
+        u_imem.imem[15] = 32'h06338393;
+        u_imem.imem[16] = 32'h00138393;
+        u_imem.imem[17] = 32'h00308463;
+        u_imem.imem[18] = 32'h00140413;
+        u_imem.imem[19] = 32'h00A40413;
         fill_nop(20);
         resetn = 1'b1;
         @(posedge clk);
@@ -249,17 +284,17 @@ module tb_Top;
     // ============================================================
     task run_test4();
         start_test("Test 4: Unsigned Compare & Branch");
-        dut.imem.imem[0]  = 32'hFFF00093;  // addi x1, x0, -1
-        dut.imem.imem[1]  = 32'h00100113;  // addi x2, x0, 1
-        dut.imem.imem[2]  = 32'h0020B1B3;  // sltu x3, x1, x2
-        dut.imem.imem[3]  = 32'h00113233;  // sltu x4, x2, x1
-        dut.imem.imem[4]  = 32'h06413293;  // sltiu x5, x2, 100
-        dut.imem.imem[5]  = 32'h00116463;  // bltu x2, x1, +8
-        dut.imem.imem[6]  = 32'h06300313;  // addi x6, x0, 99 (SKIPPED)
-        dut.imem.imem[7]  = 32'h04600393;  // addi x7, x0, 70
-        dut.imem.imem[8]  = 32'h0020F463;  // bgeu x1, x2, +8
-        dut.imem.imem[9]  = 32'h05800413;  // addi x8, x0, 88 (SKIPPED)
-        dut.imem.imem[10] = 32'h05000493;  // addi x9, x0, 80
+        u_imem.imem[0]  = 32'hFFF00093;  // addi x1, x0, -1
+        u_imem.imem[1]  = 32'h00100113;  // addi x2, x0, 1
+        u_imem.imem[2]  = 32'h0020B1B3;  // sltu x3, x1, x2
+        u_imem.imem[3]  = 32'h00113233;  // sltu x4, x2, x1
+        u_imem.imem[4]  = 32'h06413293;  // sltiu x5, x2, 100
+        u_imem.imem[5]  = 32'h00116463;  // bltu x2, x1, +8
+        u_imem.imem[6]  = 32'h06300313;  // addi x6, x0, 99 (SKIPPED)
+        u_imem.imem[7]  = 32'h04600393;  // addi x7, x0, 70
+        u_imem.imem[8]  = 32'h0020F463;  // bgeu x1, x2, +8
+        u_imem.imem[9]  = 32'h05800413;  // addi x8, x0, 88 (SKIPPED)
+        u_imem.imem[10] = 32'h05000493;  // addi x9, x0, 80
         fill_nop(11);
         resetn = 1'b1;
         @(posedge clk);
@@ -281,17 +316,17 @@ module tb_Top;
     // ============================================================
     task run_test5();
         start_test("Test 5: Jump and Link Instructions");
-        dut.imem.imem[0]  = 32'h00500093;  // addi x1, x0, 5
-        dut.imem.imem[1]  = 32'h0080016F;  // jal x2, +8
-        dut.imem.imem[2]  = 32'h06300193;  // addi x3, x0, 99 (SKIP)
-        dut.imem.imem[3]  = 32'h00A00213;  // addi x4, x0, 10
-        dut.imem.imem[4]  = 32'h00000297;  // auipc x5, 0
-        dut.imem.imem[5]  = 32'h00C28293;  // addi x5, x5, 12
-        dut.imem.imem[6]  = 32'h00028367;  // jalr x6, x5, 0
-        dut.imem.imem[7]  = 32'h01400393;  // addi x7, x0, 20
-        dut.imem.imem[8]  = 32'h0080046F;  // jal x8, +8
-        dut.imem.imem[9]  = 32'h06300493;  // addi x9, x0, 99 (SKIP)
-        dut.imem.imem[10] = 32'h01E00513;  // addi x10, x0, 30
+        u_imem.imem[0]  = 32'h00500093;  // addi x1, x0, 5
+        u_imem.imem[1]  = 32'h0080016F;  // jal x2, +8
+        u_imem.imem[2]  = 32'h06300193;  // addi x3, x0, 99 (SKIP)
+        u_imem.imem[3]  = 32'h00A00213;  // addi x4, x0, 10
+        u_imem.imem[4]  = 32'h00000297;  // auipc x5, 0
+        u_imem.imem[5]  = 32'h00C28293;  // addi x5, x5, 12
+        u_imem.imem[6]  = 32'h00028367;  // jalr x6, x5, 0
+        u_imem.imem[7]  = 32'h01400393;  // addi x7, x0, 20
+        u_imem.imem[8]  = 32'h0080046F;  // jal x8, +8
+        u_imem.imem[9]  = 32'h06300493;  // addi x9, x0, 99 (SKIP)
+        u_imem.imem[10] = 32'h01E00513;  // addi x10, x0, 30
         fill_nop(11);
         resetn = 1'b1;
         @(posedge clk);
@@ -314,13 +349,13 @@ module tb_Top;
     // ============================================================
     task run_test6();
         start_test("Test 6: LW from Pre-loaded dmem");
-        dut.imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
-        dut.imem.imem[1] = 32'h0000A103;  // lw x2, 0(x1)
+        u_imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
+        u_imem.imem[1] = 32'h0000A103;  // lw x2, 0(x1)
         fill_nop(2);
         resetn = 1'b1;
         @(posedge clk);
         // Backdoor-load dmem AFTER reset release (NBA race avoidance)
-        dut.dmem.dmem[10] = 32'h12345678;
+        u_dmem.dmem[10] = 32'h12345678;
         repeat(300) @(posedge clk);
         check_reg(1, 32'd40);
         check_reg(2, 32'h12345678);
@@ -332,9 +367,9 @@ module tb_Top;
     // ============================================================
     task run_test7();
         start_test("Test 7: SW Store to dmem");
-        dut.imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
-        dut.imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
-        dut.imem.imem[2] = 32'h0020A023;  // sw x2, 0(x1)
+        u_imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
+        u_imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
+        u_imem.imem[2] = 32'h0020A023;  // sw x2, 0(x1)
         fill_nop(3);
         resetn = 1'b1;
         @(posedge clk);
@@ -350,10 +385,10 @@ module tb_Top;
     // ============================================================
     task run_test8();
         start_test("Test 8: Store-to-Load Forwarding");
-        dut.imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
-        dut.imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
-        dut.imem.imem[2] = 32'h0020A023;  // sw x2, 0(x1)
-        dut.imem.imem[3] = 32'h0000A183;  // lw x3, 0(x1)
+        u_imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
+        u_imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
+        u_imem.imem[2] = 32'h0020A023;  // sw x2, 0(x1)
+        u_imem.imem[3] = 32'h0000A183;  // lw x3, 0(x1)
         fill_nop(4);
         resetn = 1'b1;
         @(posedge clk);
@@ -370,14 +405,14 @@ module tb_Top;
     // ============================================================
     task run_test9();
         start_test("Test 9: Multi-Store Forward LATEST");
-        dut.imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
-        dut.imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
-        dut.imem.imem[2] = 32'h0C800193;  // addi x3, x0, 200
-        dut.imem.imem[3] = 32'h12C00213;  // addi x4, x0, 300
-        dut.imem.imem[4] = 32'h0020A023;  // sw x2, 0(x1)
-        dut.imem.imem[5] = 32'h0030A023;  // sw x3, 0(x1)
-        dut.imem.imem[6] = 32'h0040A023;  // sw x4, 0(x1)
-        dut.imem.imem[7] = 32'h0000A283;  // lw x5, 0(x1)
+        u_imem.imem[0] = 32'h02800093;  // addi x1, x0, 40
+        u_imem.imem[1] = 32'h06400113;  // addi x2, x0, 100
+        u_imem.imem[2] = 32'h0C800193;  // addi x3, x0, 200
+        u_imem.imem[3] = 32'h12C00213;  // addi x4, x0, 300
+        u_imem.imem[4] = 32'h0020A023;  // sw x2, 0(x1)
+        u_imem.imem[5] = 32'h0030A023;  // sw x3, 0(x1)
+        u_imem.imem[6] = 32'h0040A023;  // sw x4, 0(x1)
+        u_imem.imem[7] = 32'h0000A283;  // lw x5, 0(x1)
         fill_nop(8);
         resetn = 1'b1;
         @(posedge clk);
@@ -398,10 +433,10 @@ module tb_Top;
     // ============================================================
     task run_test10();
         start_test("Test 10: BPU Stress (100-iter loop)");
-        dut.imem.imem[0] = 32'h00000093;  // addi x1, x0, 0    ; x1 = 0
-        dut.imem.imem[1] = 32'h06400113;  // addi x2, x0, 100  ; x2 = 100
-        dut.imem.imem[2] = 32'h00108093;  // loop: addi x1, x1, 1
-        dut.imem.imem[3] = 32'hFE209EE3;  // bne x1, x2, -4   ; loop while x1!=100
+        u_imem.imem[0] = 32'h00000093;  // addi x1, x0, 0    ; x1 = 0
+        u_imem.imem[1] = 32'h06400113;  // addi x2, x0, 100  ; x2 = 100
+        u_imem.imem[2] = 32'h00108093;  // loop: addi x1, x1, 1
+        u_imem.imem[3] = 32'hFE209EE3;  // bne x1, x2, -4   ; loop while x1!=100
         fill_nop(4);
         resetn = 1'b1;
         @(posedge clk);
@@ -420,18 +455,18 @@ module tb_Top;
     // ============================================================
     task run_test11();
         start_test("Test 11: BPU Pattern - Alternating (period 2)");
-        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
-        dut.imem.imem[1]  = 32'h03C00113;  // addi x2, x0, 60      ; N = 60
-        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; even_count = 0
-        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; odd_count  = 0
+        u_imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        u_imem.imem[1]  = 32'h03C00113;  // addi x2, x0, 60      ; N = 60
+        u_imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; even_count = 0
+        u_imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; odd_count  = 0
         // loop:
-        dut.imem.imem[4]  = 32'h0010F193;  // andi x3, x1, 1       ; x3 = i & 1
-        dut.imem.imem[5]  = 32'h00019663;  // bne  x3, x0, +12     ; if odd → jump to imem[8]
-        dut.imem.imem[6]  = 32'h00120213;  // addi x4, x4, 1       ; even: x4++
-        dut.imem.imem[7]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[9]
-        dut.imem.imem[8]  = 32'h00128293;  // odd:  addi x5, x5, 1 ; odd: x5++
-        dut.imem.imem[9]  = 32'h00108093;  // addi x1, x1, 1       ; i++
-        dut.imem.imem[10] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[4]
+        u_imem.imem[4]  = 32'h0010F193;  // andi x3, x1, 1       ; x3 = i & 1
+        u_imem.imem[5]  = 32'h00019663;  // bne  x3, x0, +12     ; if odd → jump to imem[8]
+        u_imem.imem[6]  = 32'h00120213;  // addi x4, x4, 1       ; even: x4++
+        u_imem.imem[7]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[9]
+        u_imem.imem[8]  = 32'h00128293;  // odd:  addi x5, x5, 1 ; odd: x5++
+        u_imem.imem[9]  = 32'h00108093;  // addi x1, x1, 1       ; i++
+        u_imem.imem[10] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[4]
         fill_nop(11);
         resetn = 1'b1;
         @(posedge clk);
@@ -451,19 +486,19 @@ module tb_Top;
     // ============================================================
     task run_test12();
         start_test("Test 12: BPU Pattern - 4-cycle (period 4)");
-        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
-        dut.imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64      ; N = 64
-        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
-        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
-        dut.imem.imem[4]  = 32'h00300313;  // addi x6, x0, 3       ; mask = 3
+        u_imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        u_imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64      ; N = 64
+        u_imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
+        u_imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
+        u_imem.imem[4]  = 32'h00300313;  // addi x6, x0, 3       ; mask = 3
         // loop:
-        dut.imem.imem[5]  = 32'h0030F193;  // andi x3, x1, 3       ; x3 = i & 3
-        dut.imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==3 → jump
-        dut.imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
-        dut.imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
-        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
-        dut.imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
-        dut.imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
+        u_imem.imem[5]  = 32'h0030F193;  // andi x3, x1, 3       ; x3 = i & 3
+        u_imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==3 → jump
+        u_imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
+        u_imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
+        u_imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
+        u_imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
+        u_imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
         fill_nop(12);
         resetn = 1'b1;
         @(posedge clk);
@@ -484,19 +519,19 @@ module tb_Top;
     // ============================================================
     task run_test13();
         start_test("Test 13: BPU Pattern - 16-cycle (period 16)");
-        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
-        dut.imem.imem[1]  = 32'h05000113;  // addi x2, x0, 80      ; N = 80
-        dut.imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
-        dut.imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
-        dut.imem.imem[4]  = 32'h00F00313;  // addi x6, x0, 15      ; mask = 15
+        u_imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0       ; i = 0
+        u_imem.imem[1]  = 32'h05000113;  // addi x2, x0, 80      ; N = 80
+        u_imem.imem[2]  = 32'h00000213;  // addi x4, x0, 0       ; NT_count = 0
+        u_imem.imem[3]  = 32'h00000293;  // addi x5, x0, 0       ; T_count  = 0
+        u_imem.imem[4]  = 32'h00F00313;  // addi x6, x0, 15      ; mask = 15
         // loop:
-        dut.imem.imem[5]  = 32'h00F0F193;  // andi x3, x1, 15      ; x3 = i & 15
-        dut.imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==15 → jump
-        dut.imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
-        dut.imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
-        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
-        dut.imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
-        dut.imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
+        u_imem.imem[5]  = 32'h00F0F193;  // andi x3, x1, 15      ; x3 = i & 15
+        u_imem.imem[6]  = 32'h00618663;  // beq  x3, x6, +12     ; if x3==15 → jump
+        u_imem.imem[7]  = 32'h00120213;  // addi x4, x4, 1       ; NT path: x4++
+        u_imem.imem[8]  = 32'h00000463;  // beq  x0, x0, +8      ; jump to imem[10]
+        u_imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1       ; T path: x5++
+        u_imem.imem[10] = 32'h00108093;  // addi x1, x1, 1       ; i++
+        u_imem.imem[11] = 32'hFE2094E3;  // bne  x1, x2, -24     ; loop back to imem[5]
         fill_nop(12);
         resetn = 1'b1;
         @(posedge clk);
@@ -519,21 +554,21 @@ module tb_Top;
     // ============================================================
     task run_test14();
         start_test("Test 14: SC-friendly (~69% biased branch)");
-        dut.imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0      ; i = 0
-        dut.imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64     ; N = 64
-        dut.imem.imem[2]  = 32'h04900193;  // addi x3, x0, 73     ; seed
-        dut.imem.imem[3]  = 32'h00000213;  // addi x4, x0, 0      ; T count
-        dut.imem.imem[4]  = 32'h00000293;  // addi x5, x0, 0      ; NT count
-        dut.imem.imem[5]  = 32'h01600493;  // addi x9, x0, 22     ; threshold
+        u_imem.imem[0]  = 32'h00000093;  // addi x1, x0, 0      ; i = 0
+        u_imem.imem[1]  = 32'h04000113;  // addi x2, x0, 64     ; N = 64
+        u_imem.imem[2]  = 32'h04900193;  // addi x3, x0, 73     ; seed
+        u_imem.imem[3]  = 32'h00000213;  // addi x4, x0, 0      ; T count
+        u_imem.imem[4]  = 32'h00000293;  // addi x5, x0, 0      ; NT count
+        u_imem.imem[5]  = 32'h01600493;  // addi x9, x0, 22     ; threshold
         // loop at imem[6]:
-        dut.imem.imem[6]  = 32'h01118193;  // addi x3, x3, 17     ; x3 += 17
-        dut.imem.imem[7]  = 32'h01F1F393;  // andi x7, x3, 31     ; x7 = x3 & 31
-        dut.imem.imem[8]  = 32'h0093C663;  // blt  x7, x9, +12    ; if x7<22 → jump
-        dut.imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1      ; NT++
-        dut.imem.imem[10] = 32'h00000463;  // beq  x0, x0, +8     ; jump cont
-        dut.imem.imem[11] = 32'h00120213;  // addi x4, x4, 1      ; T++
-        dut.imem.imem[12] = 32'h00108093;  // addi x1, x1, 1      ; i++
-        dut.imem.imem[13] = 32'hFE2092E3;  // bne  x1, x2, -28    ; loop
+        u_imem.imem[6]  = 32'h01118193;  // addi x3, x3, 17     ; x3 += 17
+        u_imem.imem[7]  = 32'h01F1F393;  // andi x7, x3, 31     ; x7 = x3 & 31
+        u_imem.imem[8]  = 32'h0093C663;  // blt  x7, x9, +12    ; if x7<22 → jump
+        u_imem.imem[9]  = 32'h00128293;  // addi x5, x5, 1      ; NT++
+        u_imem.imem[10] = 32'h00000463;  // beq  x0, x0, +8     ; jump cont
+        u_imem.imem[11] = 32'h00120213;  // addi x4, x4, 1      ; T++
+        u_imem.imem[12] = 32'h00108093;  // addi x1, x1, 1      ; i++
+        u_imem.imem[13] = 32'hFE2092E3;  // bne  x1, x2, -28    ; loop
         fill_nop(14);
         resetn = 1'b1;
         @(posedge clk);
@@ -557,19 +592,19 @@ module tb_Top;
     // ============================================================
     task run_test15();
         start_test("Test 15: Nested loop (LP advantage)");
-        dut.imem.imem[0]  = 32'h01E00513;  // addi x10, x0, 30   ; outer count
-        dut.imem.imem[1]  = 32'h00000593;  // addi x11, x0, 0    ; i = 0
-        dut.imem.imem[2]  = 32'h00000713;  // addi x14, x0, 0    ; counter
+        u_imem.imem[0]  = 32'h01E00513;  // addi x10, x0, 30   ; outer count
+        u_imem.imem[1]  = 32'h00000593;  // addi x11, x0, 0    ; i = 0
+        u_imem.imem[2]  = 32'h00000713;  // addi x14, x0, 0    ; counter
         // outer_loop:
-        dut.imem.imem[3]  = 32'h01000613;  // addi x12, x0, 16   ; inner count
-        dut.imem.imem[4]  = 32'h00000693;  // addi x13, x0, 0    ; j = 0
+        u_imem.imem[3]  = 32'h01000613;  // addi x12, x0, 16   ; inner count
+        u_imem.imem[4]  = 32'h00000693;  // addi x13, x0, 0    ; j = 0
         // inner_loop:
-        dut.imem.imem[5]  = 32'h00170713;  // addi x14, x14, 1   ; counter++
-        dut.imem.imem[6]  = 32'h00168693;  // addi x13, x13, 1   ; j++
-        dut.imem.imem[7]  = 32'hFEC69CE3;  // bne x13, x12, -8   ; inner bne
+        u_imem.imem[5]  = 32'h00170713;  // addi x14, x14, 1   ; counter++
+        u_imem.imem[6]  = 32'h00168693;  // addi x13, x13, 1   ; j++
+        u_imem.imem[7]  = 32'hFEC69CE3;  // bne x13, x12, -8   ; inner bne
         // after inner:
-        dut.imem.imem[8]  = 32'h00158593;  // addi x11, x11, 1   ; i++
-        dut.imem.imem[9]  = 32'hFEA594E3;  // bne x11, x10, -24  ; outer bne
+        u_imem.imem[8]  = 32'h00158593;  // addi x11, x11, 1   ; i++
+        u_imem.imem[9]  = 32'hFEA594E3;  // bne x11, x10, -24  ; outer bne
         fill_nop(10);
         resetn = 1'b1;
         @(posedge clk);

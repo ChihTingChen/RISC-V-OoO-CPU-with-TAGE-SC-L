@@ -1,7 +1,15 @@
 import riscv_pkg::*;
 module Top(
-    input logic clk,resetn
-
+    input  logic        clk, resetn,
+    // ===== Instruction memory interface =====
+    output logic [31:0] imem_addr,
+    input  logic [31:0] imem_data,
+    // ===== Data memory interface =====
+    output logic [31:0] dmem_addr,
+    output logic [31:0] dmem_waddr,
+    output logic [31:0] dmem_wdata,
+    output logic        dmem_wen,
+    input  logic [31:0] dmem_rdata
 );
 logic stall, flush, rob_full, rs_full;
 logic [31:0] flush_pc, IF_pc;
@@ -31,9 +39,7 @@ logic        alu_mem_valid;
 logic [2:0]  alu_mem_lsq_id;
 logic [31:0] alu_mem_addr, alu_mem_data;
 logic        alu_mem_is_load;
-// LSQ to dmem
-logic [31:0] dmem_addr, dmem_waddr, dmem_wdata, dmem_rdata;
-logic        dmem_wen;
+// LSQ to dmem (driven by LSQ directly to chip-level ports above)
 // LSQ to ROB
 logic        sw_ready_valid;
 logic [3:0]  sw_ready_rob_id;
@@ -71,11 +77,9 @@ bpu bpu(
     .update_actual_taken(bpu_update_actual_taken),
     .update_meta(bpu_update_meta)
 );
-//imem instantiate
-imem imem(
-    .addr(IF_pc),//in
-    .data(IF_instr)//out
-);
+// imem moved to testbench (chip-level interface)
+assign imem_addr = IF_pc;
+assign IF_instr  = imem_data;
 //dcode instantiate
 decode decode(
     .IF_pc(IF_pc),//in
@@ -235,13 +239,7 @@ always_comb begin
     else
         common_data_bus = '0;
 end
-dmem dmem(
-    .clk(clk),
-    .resetn(resetn),
-    .wen(dmem_wen),
-    .waddr(dmem_waddr),
-    .addr(dmem_addr),
-    .wdata(dmem_wdata),
-    .rdata(dmem_rdata)
-);
+// dmem moved to testbench (chip-level interface)
+// LSQ drives dmem_addr / dmem_waddr / dmem_wdata / dmem_wen directly to ports
+// dmem_rdata comes back as input port directly to LSQ
 endmodule
