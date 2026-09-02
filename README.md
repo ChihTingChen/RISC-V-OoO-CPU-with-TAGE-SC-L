@@ -155,7 +155,7 @@ Three predictor configurations were built and run through the identical 14-test 
 
 | Metric | No BPU | TAGE | **TAGE-SC-L** | No BPU → SC-L |
 |---|---|---|---|---|
-| Branch accuracy | 18.6% | 94.7% | **96.5%** | **+77.9 pp** |
+| Branch accuracy | 18.6% | 94.7% | **96.5%** | **+77.9 %** |
 | MPKI | 281.8 | 18.1 | **11.9** | **−95.8%** |
 | Mispredicts | 2,011 | 158 | **104** | **−94.8%** |
 | Active IPC | 0.358 | 0.489 | **0.492** | **+37.4%** |
