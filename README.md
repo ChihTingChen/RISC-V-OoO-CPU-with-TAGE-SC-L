@@ -50,7 +50,8 @@ GDSII export.
 Classic Tomasulo-style out-of-order execution with a reorder buffer for precise exceptions
 and branch recovery.
 
-<img width="1366" height="675" alt="image" src="https://github.com/user-attachments/assets/8ffd7cbe-3af8-42a1-9ee2-2a0b5b3b2666" />
+<img width="792" height="632" alt="image" src="https://github.com/user-attachments/assets/a1e602c7-71a9-4502-ba97-53257674d8ee" />
+
 
 
 ### Parameters
