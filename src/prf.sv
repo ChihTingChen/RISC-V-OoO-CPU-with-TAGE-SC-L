@@ -11,7 +11,7 @@ module prf(
     input phys_reg_t write_addr,
     input logic [31:0] write_data,
     input logic wen,
-    //進站指令的destination reg
+    //destination reg of instruction arriving rs
     input logic [5:0] pp_rd,
     input logic pp_rd_valid,
     output logic rs1_ready_from_prf,
@@ -32,12 +32,12 @@ module prf(
             end
         end
         else begin
-            //write back邏輯
+            //write back logic
             if(wen && (write_addr!=0))begin
                 prf[write_addr] <= write_data;
                 valid_bit[write_addr] <= 1'b1;
             end
-            //dispatch邏輯
+            //dispatch logic
             if(pp_rd_valid && (pp_rd != 6'b0)) begin
                 valid_bit[pp_rd] <= 1'b0;
             end

@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 660" width="1080" height="660" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#000000"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#555555"/>
+    </marker>
+    <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#999999"/>
+    </marker>
+  </defs>
+
+  <rect width="1080" height="660" fill="#ffffff"/>
+
+  <!-- ================= Title ================= -->
+  <text x="540" y="30" text-anchor="middle" font-size="19" font-weight="700" fill="#000000">
+    RV32I Out-of-Order Core — Microarchitecture
+  </text>
+  <text x="540" y="49" text-anchor="middle" font-size="12" fill="#555555">
+    Tomasulo scheduling · 16-entry ROB · 64 physical registers · TAGE-SC-L branch prediction
+  </text>
+
+  <!-- ================= External memory ================= -->
+  <rect x="58" y="62" width="108" height="30" rx="4" fill="#ffffff" stroke="#999999" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="112" y="82" text-anchor="middle" font-size="12" font-weight="600" fill="#555555">imem</text>
+
+  <rect x="668" y="62" width="108" height="30" rx="4" fill="#ffffff" stroke="#999999" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="722" y="82" text-anchor="middle" font-size="12" font-weight="600" fill="#555555">dmem</text>
+
+  <!-- ================= Chip boundary ================= -->
+  <rect x="20" y="106" width="1040" height="459" rx="8" fill="none" stroke="#bbbbbb" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="32" y="124" font-size="10" font-weight="700" fill="#999999" letter-spacing="0.9">CHIP BOUNDARY</text>
+
+  <!-- ================= Stage labels ================= -->
+  <text x="112" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">FETCH</text>
+  <text x="280" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">DECODE</text>
+  <text x="452" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">RENAME</text>
+  <text x="637" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">ISSUE</text>
+  <text x="799" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">EXECUTE</text>
+  <text x="966" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="#777777" letter-spacing="1">COMMIT</text>
+
+  <!-- ================= Main pipeline blocks ================= -->
+  <rect x="55" y="160" width="115" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="112" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">Fetch</text>
+  <text x="112" y="201" text-anchor="middle" font-size="10" fill="#555555">PC / next-PC mux</text>
+
+  <rect x="225" y="160" width="110" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="280" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">Decode</text>
+  <text x="280" y="201" text-anchor="middle" font-size="10" fill="#555555">RV32I</text>
+
+  <rect x="390" y="160" width="125" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="452" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">Rename</text>
+  <text x="452" y="201" text-anchor="middle" font-size="10" fill="#555555">32 arch → 64 phys</text>
+
+  <rect x="580" y="160" width="115" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="637" y="181" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">Res. Station</text>
+  <text x="637" y="199" text-anchor="middle" font-size="10" fill="#555555">8 entries</text>
+
+  <rect x="750" y="160" width="98" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="799" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">ALU</text>
+  <text x="799" y="201" text-anchor="middle" font-size="10" fill="#555555">branch resolve</text>
+
+  <rect x="900" y="160" width="132" height="56" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="966" y="181" text-anchor="middle" font-size="13" font-weight="600" fill="#000000">Reorder Buffer</text>
+  <text x="966" y="199" text-anchor="middle" font-size="10" fill="#555555">16 · in-order retire</text>
+
+  <!-- ================= BPU ================= -->
+  <rect x="45" y="262" width="135" height="152" rx="6" fill="#ffffff" stroke="#000000" stroke-width="2.6"/>
+  <text x="112" y="282" text-anchor="middle" font-size="12.5" font-weight="700" fill="#000000">TAGE-SC-L BPU</text>
+
+  <rect x="56" y="292" width="113" height="40" rx="3" fill="#f4f4f4" stroke="#666666" stroke-width="1"/>
+  <text x="112" y="307" text-anchor="middle" font-size="10" font-weight="600" fill="#000000">TAGE</text>
+  <text x="112" y="321" text-anchor="middle" font-size="9" fill="#555555">T0–T3 · h = 0/4/16/64</text>
+
+  <rect x="56" y="338" width="113" height="30" rx="3" fill="#f4f4f4" stroke="#666666" stroke-width="1"/>
+  <text x="112" y="352" text-anchor="middle" font-size="10" fill="#000000">Loop Predictor</text>
+  <text x="112" y="363" text-anchor="middle" font-size="8.5" fill="#555555">8 entries</text>
+
+  <rect x="56" y="374" width="113" height="30" rx="3" fill="#f4f4f4" stroke="#666666" stroke-width="1"/>
+  <text x="112" y="388" text-anchor="middle" font-size="10" fill="#000000">Stat. Corrector</text>
+  <text x="112" y="399" text-anchor="middle" font-size="8.5" fill="#555555">3 × 16 counters</text>
+
+  <!-- ================= Register management ================= -->
+  <rect x="390" y="262" width="125" height="38" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+  <text x="452" y="286" text-anchor="middle" font-size="11.5" fill="#000000">ARAT</text>
+
+  <rect x="390" y="312" width="125" height="38" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+  <text x="452" y="336" text-anchor="middle" font-size="11.5" fill="#000000">Free-List</text>
+
+  <rect x="390" y="362" width="125" height="38" rx="4" fill="#ffffff" stroke="#000000" stroke-width="1.4"/>
+  <text x="452" y="380" text-anchor="middle" font-size="11.5" fill="#000000">PRF</text>
+  <text x="452" y="393" text-anchor="middle" font-size="9" fill="#555555">64 registers</text>
+
+  <!-- ================= LSQ ================= -->
+  <rect x="580" y="262" width="115" height="52" rx="5" fill="#ffffff" stroke="#000000" stroke-width="1.6"/>
+  <text x="637" y="283" text-anchor="middle" font-size="12.5" font-weight="600" fill="#000000">LSQ</text>
+  <text x="637" y="300" text-anchor="middle" font-size="9.5" fill="#555555">8 · store→load fwd</text>
+
+  <!-- ================= CDB ================= -->
+  <line x1="105" y1="440" x2="1020" y2="440" stroke="#000000" stroke-width="3"/>
+  <text x="140" y="432" font-size="11.5" font-weight="700" fill="#000000">Common Data Bus</text>
+
+  <!-- ================= Datapath arrows ================= -->
+  <!-- imem -> fetch -->
+  <line x1="112" y1="94" x2="112" y2="156" stroke="#999999" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ad)"/>
+  <text x="122" y="128" font-size="9" fill="#999999">instruction</text>
+
+  <!-- BPU -> fetch -->
+  <line x1="112" y1="262" x2="112" y2="220" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="120" y="240" font-size="9.5" font-weight="600" fill="#000000">predict</text>
+
+  <!-- fetch -> decode -> rename -->
+  <line x1="170" y1="188" x2="219" y2="188" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <line x1="335" y1="188" x2="384" y2="188" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- dispatch fan-out: rename -> RS and LSQ -->
+  <path d="M 515 178 L 556 178 L 574 178" fill="none" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <path d="M 556 178 L 556 288 L 574 288" fill="none" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <circle cx="556" cy="178" r="3" fill="#000000"/>
+  <text x="536" y="170" text-anchor="middle" font-size="9.5" fill="#000000">dispatch</text>
+
+  <!-- RS -> ALU -->
+  <line x1="695" y1="188" x2="744" y2="188" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- LSQ -> dmem -->
+  <path d="M 695 288 L 722 288 L 722 96" fill="none" stroke="#999999" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ad)"/>
+  <text x="732" y="128" font-size="9" fill="#999999">load / store</text>
+
+  <!-- ALU -> CDB -->
+  <line x1="799" y1="216" x2="799" y2="436" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- LSQ -> CDB -->
+  <line x1="637" y1="314" x2="637" y2="436" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- CDB -> ROB (completion) -->
+  <line x1="966" y1="436" x2="966" y2="220" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="974" y="330" font-size="9.5" fill="#000000">complete</text>
+
+  <!-- CDB -> PRF (writeback) -->
+  <line x1="452" y1="436" x2="452" y2="404" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="460" y="424" font-size="9.5" fill="#000000">writeback</text>
+
+  <!-- CDB -> RS (wakeup) -->
+  <path d="M 535 440 L 535 205 L 574 205" fill="none" stroke="#000000" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="527" y="400" text-anchor="end" font-size="9.5" fill="#000000">wakeup</text>
+
+  <!-- ================= Critical path: ROB -> ARAT -> Free-List ================= -->
+  <path d="M 915 216 L 915 240 L 452 240 L 452 258" fill="none" stroke="#000000" stroke-width="2.6" stroke-dasharray="8 4" marker-end="url(#a)"/>
+  <line x1="452" y1="300" x2="452" y2="308" stroke="#000000" stroke-width="2.6" stroke-dasharray="8 4" marker-end="url(#a)"/>
+  <text x="760" y="234" text-anchor="middle" font-size="9.5" font-weight="600" fill="#000000">retire — critical path (~180 gates)</text>
+
+  <!-- ================= Flush ================= -->
+  <path d="M 1005 216 L 1005 496 L 32 496 L 32 188 L 51 188" fill="none" stroke="#555555" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+  <text x="518" y="490" text-anchor="middle" font-size="10.5" font-weight="600" fill="#555555">flush + redirect PC  (branch mispredict)</text>
+
+  <!-- ================= BPU update ================= -->
+  <path d="M 930 216 L 930 540 L 112 540 L 112 418" fill="none" stroke="#555555" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+  <text x="521" y="534" text-anchor="middle" font-size="10.5" font-weight="600" fill="#555555">bpu_meta + actual outcome  →  predictor update at retire</text>
+
+  <!-- ================= Legend ================= -->
+  <g transform="translate(30, 610)">
+    <line x1="0" y1="-4" x2="26" y2="-4" stroke="#000000" stroke-width="1.8"/>
+    <text x="32" y="0" font-size="10" fill="#333333">datapath</text>
+
+    <line x1="108" y1="-4" x2="134" y2="-4" stroke="#000000" stroke-width="2.6" stroke-dasharray="8 4"/>
+    <text x="140" y="0" font-size="10" fill="#333333">timing-critical path</text>
+
+    <line x1="272" y1="-4" x2="298" y2="-4" stroke="#555555" stroke-width="1.6" stroke-dasharray="6 4"/>
+    <text x="304" y="0" font-size="10" fill="#333333">control feedback</text>
+
+    <line x1="424" y1="-4" x2="450" y2="-4" stroke="#999999" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="456" y="0" font-size="10" fill="#333333">off-chip memory interface</text>
+  </g>
+
+</svg>

@@ -63,7 +63,7 @@ module alu (
             endcase
         end
     end
-    //cdb輸出控制
+    //cdb output control
     always_comb begin
         alu_cdb_out = '0;
         if(issue_en)begin

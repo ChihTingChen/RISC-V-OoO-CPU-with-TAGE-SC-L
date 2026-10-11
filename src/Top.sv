@@ -239,7 +239,4 @@ always_comb begin
     else
         common_data_bus = '0;
 end
-// dmem moved to testbench (chip-level interface)
-// LSQ drives dmem_addr / dmem_waddr / dmem_wdata / dmem_wen directly to ports
-// dmem_rdata comes back as input port directly to LSQ
 endmodule

@@ -106,7 +106,7 @@ package riscv_pkg;
         logic [3:0]   sc_g_idx;         // SC GHIST index (16 entries)
         logic [3:0]   sc_p_idx;         // SC PATH  index (16 entries)
         logic [3:0]   sc_b_idx;         // SC BIAS  index (16 entries)
-    } bpu_meta_t;                       // total: ~76-bit
+    } bpu_meta_t;                       // total: 85-bit
 
     // =======================================================
     // 4. 🔥 萬能指令包裹 (Instruction Packet)

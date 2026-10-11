@@ -12,9 +12,7 @@ module bpu (
     input  bpu_meta_t   update_meta
 );
 
-    // =========================================================================
-    // Storage: TAGE base
-    // =========================================================================
+    //TAGE parameters
     t0_entry_t t0_table [0:127];
     t1_entry_t t1_table [0:31];
     t2_entry_t t2_table [0:31];
@@ -23,9 +21,7 @@ module bpu (
     logic [63:0] ghr;
     logic [7:0]  aging_cnt;
 
-    // =========================================================================
-    // Storage: Loop Predictor
-    // =========================================================================
+    //Loop Predictor parameters
     typedef struct packed {
         logic        valid;
         logic [9:0]  tag;           
@@ -35,13 +31,10 @@ module bpu (
     } lp_entry_t;
     lp_entry_t lp_table [0:7];
 
-    // =========================================================================
-    // Storage: Statistical Corrector
-    // =========================================================================
+    //Statistical Corrector parameters
     logic signed [5:0] sc_ghist [0:15];
     logic signed [5:0] sc_path  [0:15];
     logic signed [5:0] sc_bias  [0:15];
-
     logic [15:0] path_hist;
 
     // =========================================================================
@@ -73,36 +66,31 @@ module bpu (
         return (x == 10'h3FF) ? 10'h3FF : x + 10'd1;
     endfunction
 
-    // =========================================================================
-    // TAGE predict path
-    // =========================================================================
-    logic [4:0]  folded_idx_t2;
-    logic [9:0]  folded_tag_t2;
-    logic [4:0]  folded_idx_t3;
-    logic [11:0] folded_tag_t3;
+    //TAGE predict path
+    logic [4:0]  folded_idx_t2;//relate to T2's 32 entries
+    logic [9:0]  folded_tag_t2;//10-bit according to seznec
+    logic [4:0]  folded_idx_t3;//relate to T2's 32 entries
+    logic [11:0] folded_tag_t3;//12-bit according to seznec
 
-    assign folded_idx_t2 = ghr[4:0] ^ ghr[9:5] ^ ghr[14:10] ^ {4'b0, ghr[15]};
-    assign folded_tag_t2 = ghr[9:0] ^ {4'b0, ghr[15:10]};
-    assign folded_idx_t3 = ghr[4:0]   ^ ghr[9:5]   ^ ghr[14:10] ^ ghr[19:15] ^ ghr[24:20]
-                         ^ ghr[29:25] ^ ghr[34:30] ^ ghr[39:35] ^ ghr[44:40] ^ ghr[49:45]
-                         ^ ghr[54:50] ^ ghr[59:55] ^ {1'b0, ghr[63:60]};
-    assign folded_tag_t3 = ghr[11:0]  ^ ghr[23:12] ^ ghr[35:24] ^ ghr[47:36] ^ ghr[59:48]
-                         ^ {8'b0, ghr[63:60]};
+    assign folded_idx_t2 = ghr[4:0]^ghr[9:5]^ghr[14:10]^{4'b0, ghr[15]};
+    assign folded_tag_t2 = ghr[9:0]^{4'b0, ghr[15:10]};
+    assign folded_idx_t3 = ghr[4:0]^ghr[9:5]^ghr[14:10]^ghr[19:15]^ghr[24:20]^ghr[29:25]^ghr[34:30]^ghr[39:35]^ghr[44:40]^ghr[49:45]^ghr[54:50]^ghr[59:55]^{1'b0, ghr[63:60]};
+    assign folded_tag_t3 = ghr[11:0]^ghr[23:12]^ghr[35:24]^ghr[47:36]^ghr[59:48]^{8'b0, ghr[63:60]};
 
-    logic [6:0]  idx0_w;
-    logic [4:0]  idx1_w, idx2_w, idx3_w;
+    logic [6:0]  idx0_w;//T0's 128 entries
+    logic [4:0]  idx1_w, idx2_w, idx3_w;//32 entries
     logic [7:0]  tag1_w;
     logic [9:0]  tag2_w;
     logic [11:0] tag3_w;
-
+    //idx
     assign idx0_w = predict_pc[8:2];
-    assign idx1_w = predict_pc[6:2] ^ {1'b0, ghr[3:0]};
-    assign idx2_w = predict_pc[6:2] ^ folded_idx_t2;
-    assign idx3_w = predict_pc[6:2] ^ folded_idx_t3;
-    assign tag1_w = predict_pc[14:7]  ^ {4'b0, ghr[3:0]};
-    assign tag2_w = predict_pc[19:10] ^ folded_tag_t2;
-    assign tag3_w = predict_pc[23:12] ^ folded_tag_t3;
-
+    assign idx1_w = predict_pc[6:2]^{1'b0, ghr[3:0]};
+    assign idx2_w = predict_pc[6:2]^folded_idx_t2;
+    assign idx3_w = predict_pc[6:2]^folded_idx_t3;
+    assign tag1_w = predict_pc[14:7]^{4'b0, ghr[3:0]};
+    assign tag2_w = predict_pc[19:10]^folded_tag_t2;
+    assign tag3_w = predict_pc[23:12]^folded_tag_t3;
+    //get content from the chosen entry
     t0_entry_t e0;
     t1_entry_t e1;
     t2_entry_t e2;
@@ -111,15 +99,14 @@ module bpu (
     assign e1 = t1_table[idx1_w];
     assign e2 = t2_table[idx2_w];
     assign e3 = t3_table[idx3_w];
-
+    //tag comparator
     logic t1_hit, t2_hit, t3_hit;
     assign t1_hit = (e1.tag == tag1_w);
     assign t2_hit = (e2.tag == tag2_w);
     assign t3_hit = (e3.tag == tag3_w);
-
+    //giving provider and alt
     logic [1:0] provider_w, alt_w;
     logic       tage_pred_w;
-
     always_comb begin
         provider_w = 2'b00;
         alt_w      = 2'b00;
@@ -139,7 +126,7 @@ module bpu (
             alt_w      = 2'b00;
         end
     end
-
+    //giving tage prediction result
     always_comb begin
         unique case (provider_w)
             2'b00:   tage_pred_w = e0.ctr[1];
@@ -149,7 +136,7 @@ module bpu (
             default: tage_pred_w = 1'b0;
         endcase
     end
-
+    //giving tage weak prediciton result
     logic tage_weak_w;
     always_comb begin
         unique case (provider_w)
@@ -161,10 +148,8 @@ module bpu (
         endcase
     end
 
-    // =========================================================================
-    // Loop Predictor predict path
-    // =========================================================================
-    logic [2:0]  lp_idx_w;
+    //Loop Predict path
+    logic [2:0]  lp_idx_w;//8 entries in LP table
     logic [9:0]  lp_tag_w;
     lp_entry_t   lp_e;
     logic        lp_hit_w, lp_pred_w, lp_conf_w;
@@ -173,37 +158,35 @@ module bpu (
     assign lp_tag_w  = predict_pc[11:2];
     assign lp_e      = lp_table[lp_idx_w];
 
+    //Lp hit or not
     assign lp_hit_w  = lp_e.valid && (lp_e.tag == lp_tag_w);
+    //Lp confident or not
     assign lp_conf_w = lp_hit_w && (lp_e.conf >= 2'd2);
+    //Lp's prediction result
     assign lp_pred_w = lp_hit_w ? (lp_e.cur_iter < lp_e.conf_iter) : 1'b1;
 
-    // =========================================================================
-    // Statistical Corrector predict path
-    // =========================================================================
-    logic [3:0] sc_g_idx_w, sc_p_idx_w, sc_b_idx_w;
-    logic signed [5:0] sc_g_ctr, sc_p_ctr, sc_b_ctr;
+    //Statistical Corrector path
+    logic [3:0] sc_g_idx_w, sc_p_idx_w, sc_b_idx_w;//ghist, path, bias's 16 entries tables
+    logic signed [5:0] sc_g_ctr, sc_p_ctr, sc_b_ctr;//ghist counter, path counter, bias counter
     logic signed [7:0] sc_score;
     logic              sc_pred_w;
     logic              sc_strong_w;
 
-    assign sc_g_idx_w = predict_pc[5:2] ^ ghr[3:0];
-    assign sc_p_idx_w = predict_pc[5:2] ^ path_hist[3:0];
+    assign sc_g_idx_w = predict_pc[5:2]^ghr[3:0];
+    assign sc_p_idx_w = predict_pc[5:2]^path_hist[3:0];
     assign sc_b_idx_w = predict_pc[5:2];
-
+    //get score from each table
     assign sc_g_ctr = sc_ghist[sc_g_idx_w];
     assign sc_p_ctr = sc_path [sc_p_idx_w];
     assign sc_b_ctr = sc_bias [sc_b_idx_w];
-
-    assign sc_score = {{2{sc_g_ctr[5]}}, sc_g_ctr}
-                    + {{2{sc_p_ctr[5]}}, sc_p_ctr}
-                    + {{2{sc_b_ctr[5]}}, sc_b_ctr};
-
+    //score sum
+    assign sc_score = {{2{sc_g_ctr[5]}}, sc_g_ctr}+{{2{sc_p_ctr[5]}}, sc_p_ctr}+{{2{sc_b_ctr[5]}}, sc_b_ctr};
+    //sc prediction result
     assign sc_pred_w   = (sc_score >= 0);
+    //sc strong or not
     assign sc_strong_w = (sc_score >= 8'sd8) || (sc_score <= -8'sd8);
 
-    // =========================================================================
-    // Final prediction
-    // =========================================================================
+    //Final Prediction
     logic final_pred_w;
     logic lp_used_w, sc_used_w;
 
@@ -247,14 +230,13 @@ module bpu (
         predict_meta.sc_b_idx         = sc_b_idx_w;
     end
 
-    // =========================================================================
-    // Update path - combinational helpers
-    // =========================================================================
+    //upadate helpers
     logic update_alt_pred;
     logic update_provider_correct;
     logic update_pred_differ;
-
+    
     always_comb begin
+        //what did alt predict
         unique case (update_meta.alt)
             2'b00:   update_alt_pred = t0_table[update_meta.idx0].ctr[1];
             2'b01:   update_alt_pred = (t1_table[update_meta.idx1].ctr >= 0);
@@ -262,13 +244,13 @@ module bpu (
             2'b11:   update_alt_pred = (t3_table[update_meta.idx3].ctr >= 0);
             default: update_alt_pred = 1'b0;
         endcase
+        //what did provider predict
         update_provider_correct = (update_meta.tage_pred_taken == update_actual_taken);
+        //are they different or not
         update_pred_differ      = (update_meta.tage_pred_taken != update_alt_pred);
     end
 
-    // =========================================================================
-    // Sequential update
-    // =========================================================================
+    //Seqential Update
     always_ff @(posedge clk or negedge resetn) begin
         if (!resetn) begin
             for (int i = 0; i < 128; i++) t0_table[i] <= '0;
@@ -295,7 +277,7 @@ module bpu (
                     t3_table[i].u <= t3_table[i].u >> 1;
                 end
             end
-
+            //TAGE counter update
             unique case (update_meta.provider)
                 2'b00:   t0_table[update_meta.idx0].ctr <= update_actual_taken
                                                        ? sat_up_2  (t0_table[update_meta.idx0].ctr)
@@ -311,7 +293,7 @@ module bpu (
                                                        : sat_down_3s(t3_table[update_meta.idx3].ctr);
                 default: ;
             endcase
-
+            //TAGE u bit update
             if (update_pred_differ && update_meta.provider != 2'b00) begin
                 unique case (update_meta.provider)
                     2'b01: t1_table[update_meta.idx1].u <= update_provider_correct
@@ -326,7 +308,7 @@ module bpu (
                     default: ;
                 endcase
             end
-
+            //wrong provider prediction, then do allocation on u=0 entry in higher level table
             if (update_meta.tage_pred_taken != update_actual_taken) begin
                 unique case (update_meta.provider)
                     2'b00: begin
@@ -375,6 +357,7 @@ module bpu (
                 li = update_meta.lp_idx;
 
                 if (!lp_table[li].valid) begin
+                    //create a new entry
                     lp_table[li].valid     <= 1'b1;
                     lp_table[li].tag       <= update_meta.lp_tag;
                     lp_table[li].cur_iter  <= update_actual_taken ? 10'd1 : 10'd0;
@@ -382,18 +365,24 @@ module bpu (
                     lp_table[li].conf      <= 2'b00;
                 end
                 else if (lp_table[li].tag == update_meta.lp_tag) begin
+                    //actually taken
                     if (update_actual_taken) begin
                         lp_table[li].cur_iter <= sat_up_10(lp_table[li].cur_iter);
-                    end else begin
+                    end
+                    //actually not taken, then learn
+                    else begin
+                        //first time learning
                         if (lp_table[li].conf_iter == 10'd0) begin
                             lp_table[li].conf_iter <= lp_table[li].cur_iter;
                             lp_table[li].conf      <= 2'b00;
                         end
+                        //loop count same as last time
                         else if (lp_table[li].cur_iter == lp_table[li].conf_iter) begin
                             if (lp_table[li].conf != 2'b11)
                                 lp_table[li].conf <= lp_table[li].conf + 1'b1;
                         end
                         else begin
+                            //loop count differ, learn again from scratch
                             lp_table[li].conf_iter <= lp_table[li].cur_iter;
                             lp_table[li].conf      <= 2'b00;
                         end
@@ -401,6 +390,7 @@ module bpu (
                     end
                 end
             end
+            //SC update when mispredict
             if (update_meta.pred_taken != update_actual_taken) begin
                 if (update_actual_taken) begin
                     sc_ghist[update_meta.sc_g_idx] <= sat_up_6s(sc_ghist[update_meta.sc_g_idx]);

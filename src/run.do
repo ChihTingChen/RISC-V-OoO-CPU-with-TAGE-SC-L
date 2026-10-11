@@ -13,4 +13,3 @@ vlog -sv riscv_pkg.sv \
 
 vsim -c work.tb_Top
 run -all
-quit -f

@@ -79,7 +79,7 @@ module decode(
                     default: ;
                 endcase
             end
-            OPC_BRANCH:begin//目前只有BNE
+            OPC_BRANCH:begin
                 decoded_pkt.uses_rs1 = 1'b1;
                 decoded_pkt.uses_rs2 = 1'b1;
                 decoded_pkt.writes_rd = 1'b0;
