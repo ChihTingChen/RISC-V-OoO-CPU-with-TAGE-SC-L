@@ -44,7 +44,7 @@ module rob (
     assign rob_flush = (entries[head].bad_branch && retire_en) || mem_violation;//BNE misprediction 或 memory ordering violation
     assign rob_redirect_pc = entries[head].target_pc;//把帶在身上的target_pc給到rob_redirect_pc，再輸出給fetch
     //ROB entries 更新邏輯
-    always_ff@(posedge clk or negedge resetn)begin
+    always_ff@(posedge clk)begin
         if(!resetn)begin
             head <= 0;
             tail <= 0;

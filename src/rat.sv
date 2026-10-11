@@ -15,7 +15,7 @@ module rat(
     assign rs1_phy_addr = (rs1_addr == 5'b0) ? 6'b0 : rat_table[rs1_addr];
     assign rs2_phy_addr = (rs2_addr == 5'b0) ? 6'b0 : rat_table[rs2_addr];
     assign rd_phy_addr_old = rat_table[rd_addr];
-    always_ff @(posedge clk or negedge resetn) begin
+    always_ff @(posedge clk) begin
         if(!resetn)begin
             for(i=0;i<32;i++)begin
                 rat_table[i] <= i[5:0];//寫[5:0]避免合成報錯

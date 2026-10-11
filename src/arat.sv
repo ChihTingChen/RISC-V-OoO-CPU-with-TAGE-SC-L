@@ -7,7 +7,7 @@ module arat(
     output phys_reg_t arat_recover_rat [0:31]
 );
     phys_reg_t arat_table [0:31];
-    always_ff@(posedge clk or negedge resetn)begin
+    always_ff@(posedge clk)begin
         if(!resetn)begin
             for(int i=0;i<32;i++)begin
                 arat_table[i] <= i[5:0];

@@ -251,7 +251,7 @@ module bpu (
     end
 
     //Seqential Update
-    always_ff @(posedge clk or negedge resetn) begin
+    always_ff @(posedge clk) begin
         if (!resetn) begin
             for (int i = 0; i < 128; i++) t0_table[i] <= '0;
             for (int i = 0; i < 32;  i++) t1_table[i] <= '0;

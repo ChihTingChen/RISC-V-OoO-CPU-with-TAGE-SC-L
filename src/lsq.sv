@@ -128,7 +128,7 @@ module lsq (
         end
     end
 
-    always_ff@(posedge clk or negedge resetn)begin
+    always_ff@(posedge clk)begin
         if(!resetn)begin
             head    <= 0;
             tail    <= 0;

@@ -35,7 +35,7 @@ module free_list (
         end
     end
 
-    always_ff@(posedge clk or negedge resetn)begin
+    always_ff@(posedge clk)begin
         if(!resetn)begin
             for(int i=0; i<32; i++) FIFO[i] <= 6'(i+32);
             wp      <= 5'd0;

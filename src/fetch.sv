@@ -20,7 +20,7 @@ module fetch(
 
     wire [31:0] predicted_target = IF_pc + imm_b;
 
-    always_ff @(posedge clk or negedge resetn) begin
+    always_ff @(posedge clk) begin
         if (!resetn) IF_pc <= 0;
         else         IF_pc <= next_pc;
     end

@@ -19,7 +19,7 @@ module prf(
     );
     logic [31:0] prf [0:63];
     logic [63:0] valid_bit;
-    always_ff@(posedge clk or negedge resetn)begin
+    always_ff@(posedge clk)begin
         if(!resetn)begin
             for(int i=0;i<64;i++)begin
                 prf[i] <= '0;
