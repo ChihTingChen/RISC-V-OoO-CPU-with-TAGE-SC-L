@@ -17,7 +17,6 @@ place-and-route with scan reordering → timing closure → DRC-clean signoff.
 | **Branch accuracy** | **96.5%**|
 | **MPKI** | **11.9** (vs. 281.8 with no predictor) — **95.8% reduction** |
 | **Active IPC** | **0.492** (vs. 0.358) — **+37.4%** |
-| **Predictor cost** (synthesis study) | **+10.4% area / +9.9% power / 0 MHz frequency penalty** |
 | **Operating frequency** | **111 MHz** (9 ns), signed off at SS 0.63 V / 100 °C with ±5% OCV |
 | **Setup / hold WNS** | **+96 ps / ≥ 0** across SS, TT, FF and scan-shift modes |
 | **Die area** | **0.0100 mm²** (≈ 100 × 100 µm) |
@@ -40,12 +39,11 @@ place-and-route with scan reordering → timing closure → DRC-clean signoff.
 1. [Microarchitecture](#1-microarchitecture)
 2. [TAGE-SC-L Branch Predictor](#2-tage-sc-l-branch-predictor)
 3. [Branch Prediction Results](#3-branch-prediction-results)
-4. [PPA Trade-off Analysis](#4-ppa-trade-off-analysis)
-5. [Physical Design](#5-physical-design)
-6. [Timing Closure](#6-timing-closure)
-7. [Verification](#7-verification)
-8. [Design for Test (Scan)](#8-design-for-test-scan)
-9. [Repository Structure](#9-repository-structure)
+4. [Physical Design](#4-physical-design)
+5. [Timing Closure](#5-timing-closure)
+6. [Verification](#6-verification)
+7. [Design for Test (Scan)](#7-design-for-test-scan)
+8. [Repository Structure](#8-repository-structure)
 
 ---
 
@@ -251,95 +249,14 @@ principal contributor among the SC-L extensions.
 
 ---
 
-## 4. PPA Trade-off Analysis
-
-This predictor-cost study was run at the synthesis level, before the physical implementation:
-all three predictor configurations were synthesised with Design Compiler under identical
-constraints (6.5 ns clock target, gscl45nm 45 nm library, typical corner). **All three met timing with
-zero slack violation**, which makes the deltas below a clean measurement of what the
-predictor costs.
-
-### 4.1 Synthesis PPA
-
-| Metric | No BPU | TAGE | **TAGE-SC-L** | No BPU → SC-L |
-|---|---|---|---|---|
-| Total cell area (µm²) | 923,041.8 | 989,472.6 | **1,018,864.4** | **+10.38%** |
-| Combinational | 524,099.2 | 562,612.3 | 582,133.8 | +11.07% |
-| Sequential | 398,942.6 | 426,860.3 | 436,730.6 | +9.47% |
-| Sequential cells | 38,640 | 41,344 | **42,300** | +9.47% |
-| Combinational cells | 222,369 | 238,750 | 247,446 | +11.28% |
-| Total power (mW) | 147.75 | 158.48 | **162.42** | **+9.93%** |
-| Dynamic | 141.42 | 151.71 | 155.46 | +9.93% |
-| Leakage | 6.29 | 6.74 | 6.92 | +10.08% |
-| **Setup slack** | **MET** | **MET** | **MET** | **no penalty** |
-
-Incremental cost of each stage:
-
-| | No BPU → TAGE | TAGE → TAGE-SC-L |
-|---|---|---|
-| Area | +7.20% | **+2.97%** |
-| Power | +7.26% | **+2.48%** |
-| Flip-flops | +2,704 | **+956** |
-
-### 4.2 The Predictor Is Not on the Critical Path
-
-All three configurations report an **identical critical path** and an identical 6.42 ns
-arrival time:
-
-```
-No BPU     rob/head_reg[2] → arat → rename_stage/u_free_list/FIFO_reg[29][5]   6.42 ns  MET
-TAGE       rob/head_reg[1] → arat → rename_stage/u_free_list/FIFO_reg[16][5]   6.42 ns  MET
-TAGE-SC-L  rob/head_reg[0] → arat → rename_stage/u_free_list/FIFO_reg[21][5]   6.42 ns  MET
-```
-
-The bottleneck is the **rename recovery path** (ROB retire → ARAT recovery mux → free-list
-allocation), not the predictor. Adding a full TAGE-SC-L predictor to a core that previously
-had none therefore costs **zero frequency**.
-
-### 4.3 Efficiency
-
-Because the frequency is unchanged, the IPC gain translates directly into throughput:
-
-| Metric | No BPU | TAGE-SC-L | Δ |
-|---|---|---|---|
-| Active IPC | 0.358 | 0.492 | +37.4% |
-| Area | 0.9230 mm² | 1.0189 mm² | +10.4% |
-| Power | 147.75 mW | 162.42 mW | +9.9% |
-| **IPC per mm²** | 0.3879 | 0.4829 | **+24.5%** |
-| **IPC per mW** | 0.002423 | 0.003029 | **+25.0%** |
-
-A 37.4% performance gain for roughly 10% area and power is a net **~25% improvement in
-performance density** — the predictor pays for itself several times over.
-
-### 4.4 Where the SC-L Flip-Flops Go
-
-The measured cost of adding the Loop Predictor and Statistical Corrector to TAGE is
-**+956 flip-flops**. Accounting for it from the RTL:
-
-| Source | Bits |
-|---|---|
-| Loop Predictor table (8 entries × 33 bit) | 264 |
-| SC tables (3 × 16 entries × 6-bit signed) | 288 |
-| Path History Register | 16 |
-| Widened `bpu_meta_t` stored in the ROB (27 bit × 16 entries) | 432 |
-| **Predicted total** | **1,000** |
-| **Measured** | **956** (−4.4%, absorbed by synthesis optimisation) |
-
-Note that a substantial fraction of the predictor's cost is **not** in the predictor itself:
-the 85-bit `bpu_meta_t` prediction metadata is carried alongside every in-flight instruction
-through decode, rename, the reservation station and the ROB, so that the correct table
-entries can be updated at retire.
-
----
-
-## 5. Physical Design
+## 4. Physical Design
 
 Full implementation on the **ASAP7** 7 nm predictive PDK: Genus synthesis, Innovus
 place-and-route, and Conformal LEC. ASAP7 ships a 4x-scaled LEF (lengths ×4, areas ×16) to
 work around tool grid limits; physical numbers below are converted back to real 7 nm
 dimensions unless marked "(4x)". Timing and power are unaffected by the scaling.
 
-### 5.1 Flow
+### 4.1 Flow
 
 ```
 Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded) + scan insertion
@@ -355,7 +272,7 @@ Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded) + scan inser
   → Conformal LEC (scan netlist vs. post-route netlist)
 ```
 
-### 5.2 Final Chip
+### 4.2 Final Chip
 
 | Parameter | Value |
 |---|---|
@@ -377,7 +294,7 @@ Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded) + scan inser
 
 <img src="docs/asap7/asap7_route_detail.png" width="720" alt="Routing detail: cells, power rails and signal routes">
 
-### 5.3 Power Distribution Network
+### 4.3 Power Distribution Network
 
 | Element | Layer | Width (4x) | Notes |
 |---|---|---|---|
@@ -395,7 +312,7 @@ widths, rails that do not stack vias up to the ring, and per-layer stacked-via r
 
 <img src="docs/asap7/asap7_pdn.png" width="640" alt="Power grid before placement">
 
-### 5.4 Routing: 94,521 → 0 DRC Violations
+### 4.4 Routing: 94,521 → 0 DRC Violations
 
 | Attempt | DRC violations |
 |---|---|
@@ -414,7 +331,7 @@ the floorplan and snapping pins and straps to the tracks brought the design to *
 
 <img src="docs/asap7/drc_journey.png" width="640" alt="DRC count by routing attempt">
 
-### 5.5 Clock Tree Synthesis
+### 4.5 Clock Tree Synthesis
 
 | Parameter | Value |
 |---|---|
@@ -426,7 +343,7 @@ the floorplan and snapping pins and straps to the tracks brought the design to *
 | Insertion delay (SS) | 178.5 – 210.6 ps |
 | Skew | **32.1 ps** |
 
-### 5.6 Area Breakdown by Module
+### 4.6 Area Breakdown by Module
 
 | Module | Instances | Area (µm²) | Share |
 |---|---|---|---|
@@ -445,7 +362,7 @@ the floorplan and snapping pins and straps to the tracks brought the design to *
 | top level (clock tree, buffers, ties) | 567 | 66.1 | 0.88% |
 | **Total** | **46,335** | **7,538.9** | 100% |
 
-### 5.7 Power Analysis
+### 4.7 Power Analysis
 
 Post-route static power at 111 MHz, TT 0.7 V / 25 °C, 0.2 input switching activity:
 
@@ -467,9 +384,9 @@ clock gating the most effective next step for power.
 
 ---
 
-## 6. Timing Closure
+## 5. Timing Closure
 
-### 6.1 Signoff Setup
+### 5.1 Signoff Setup
 
 | Item | Setting |
 |---|---|
@@ -479,7 +396,7 @@ clock gating the most effective next step for power.
 | Delay calculation | SI-aware, post-route parasitics from the ASAP7 QRC tech file |
 | Uncertainty | 50 ps setup / 10 ps hold |
 
-### 6.2 Closure Progression (9 ns)
+### 5.2 Closure Progression (9 ns)
 
 | Stage | Setup WNS | Hold WNS |
 |---|---|---|
@@ -498,7 +415,7 @@ The last hold violation was a scan-shift race: one flop's `QN` drove the next fl
 directly (−0.031 ps). Post-route hold optimisation left it, so a targeted repeater ECO on the
 `SI` pin closed it.
 
-### 6.3 Endpoint Slack
+### 5.3 Endpoint Slack
 
 <img src="docs/asap7/slack_hist.png" width="900" alt="Endpoint slack histograms">
 
@@ -508,7 +425,7 @@ directly (−0.031 ps). Post-route hold optimisation left it, so a targeted repe
 | Hold, functional (FF) | 9,175 | +11.2 ps |
 | Hold, scan shift (FF) | 9,054 | +0.2 ps |
 
-### 6.4 The Limiting Path
+### 5.4 The Limiting Path
 
 ```
 rob/head_reg[2]                          (ROB head pointer)
@@ -520,14 +437,14 @@ This is the **rename recovery path**: on retire, the ROB head releases a physica
 the ARAT updates the architectural mapping, and the free-list compaction loop reclaims the
 tag, all combinationally within one cycle. At the SS corner with OCV it needs nearly the full
 9 ns, which is why the design is signed off at 111 MHz. The same structure also dominates
-formal-verification runtime (Section 7.2). Pipelining rename recovery across two cycles is
+formal-verification runtime (Section 6.2). Pipelining rename recovery across two cycles is
 the clear next optimisation.
 
 ---
 
-## 7. Verification
+## 6. Verification
 
-### 7.1 RTL Simulation — 75/75 checks PASS
+### 6.1 RTL Simulation — 75/75 checks PASS
 
 14 directed tests, 75 assertion checks, verified against architectural register file and
 data memory contents.
@@ -555,7 +472,7 @@ microarchitectural statistics: retired instructions, active cycles, branch count
 count, TAGE provider distribution, and Loop Predictor / Statistical Corrector override
 counts.
 
-### 7.2 Formal Equivalence (Conformal LEC)
+### 6.2 Formal Equivalence (Conformal LEC)
 
 | Check | Scope | Result |
 |---|---|---|
@@ -568,9 +485,9 @@ free-list module accounts for more than 99% of the equivalence-checking runtime.
 
 ---
 
-## 8. Design for Test (Scan)
+## 7. Design for Test (Scan)
 
-### 8.1 Enabling Scan on ASAP7
+### 7.1 Enabling Scan on ASAP7
 
 ASAP7's only asynchronous-reset flop (`DFFASRHQNx1`) has no scan equivalent, and its scan
 flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
@@ -585,7 +502,7 @@ flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
    `test_scan_in`, SE as `test_scan_enable`, QN as `test_scan_out_inverted`) to a copy of
    the libraries took the usable scan cells from 0 to 8 in an A/B test.
 
-### 8.2 Scan Insertion and Reordering
+### 7.2 Scan Insertion and Reordering
 
 | Item | Result |
 |---|---|
@@ -598,7 +515,7 @@ flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
 
 <img src="docs/asap7/scan_reorder.png" width="900" alt="Scan chains before and after reorder">
 
-### 8.3 Limitations
+### 7.3 Limitations
 
 - Physical checks use Innovus `verify_drc` / `verifyConnectivity`; no Calibre DRC/LVS deck
   is available for ASAP7, and the LEF has no antenna data.
@@ -608,7 +525,7 @@ flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
 
 ---
 
-## 9. Repository Structure
+## 8. Repository Structure
 
 ```
 .
