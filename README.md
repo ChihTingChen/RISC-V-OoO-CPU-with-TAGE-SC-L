@@ -1,11 +1,14 @@
 # RISC-V (RV32I) Out-of-Order CPU with TAGE-SC-L Branch Predictor
 
-A superscalar-capable out-of-order RISC-V core implemented from RTL to GDSII, featuring a
-three-tier **TAGE-SC-L** branch predictor (TAGE + Loop Predictor + Statistical Corrector).
+A superscalar-capable out-of-order RISC-V core featuring a three-tier **TAGE-SC-L** branch
+predictor (TAGE + Loop Predictor + Statistical Corrector), implemented twice:
 
-The project covers the complete digital design flow: RTL design → functional verification →
-logic synthesis → gate-level simulation → full place-and-route → timing closure → DRC-clean
-GDSII export.
+- **45 nm (gscl45nm)** — RTL to DRC-clean GDSII: functional verification → logic synthesis →
+  gate-level simulation → place-and-route → timing closure → GDSII export.
+- **7 nm (ASAP7 predictive PDK)** — RTL to signoff with **full-scan DFT**: synchronous-reset
+  conversion → Liberty test-model fix-up → scan insertion → multi-mode, multi-corner
+  place-and-route with scan reordering → formal equivalence from RTL to the post-route netlist.
+  See [Section 8](#8-asap7-7-nm-implementation) and [Section 9](#9-design-for-test-scan).
 
 ---
 
@@ -28,6 +31,23 @@ GDSII export.
 
 **Tools:** Cadence NCSim, Synopsys Design Compiler, Synopsys PrimeTime, Cadence Innovus 25.1
 
+### ASAP7 7 nm implementation (with scan DFT)
+
+| | Result |
+|---|---|
+| **Operating frequency** | **111 MHz** (9 ns), signed off at SS 0.63 V / 100 °C with ±5% OCV |
+| **Setup / hold WNS** | **+96 ps / ≥ 0** across SS, TT, FF and scan-shift modes, 0 DRV |
+| **Die area** | **0.0100 mm²** real (401.76 × 399.456 µm in the 4x-scaled LEF ÷ 16) |
+| **Total power** | **2.17 mW** (TT 0.7 V, 25 °C, static, 0.2 input activity) |
+| **Scan** | **8 chains × 1,130–1,131 flops** (9,046 scan flops), 0 DFT rule violations |
+| **Scan reorder** | Flop-to-flop scan wiring **−72%** after placement |
+| **DRC violations** | **0** (down from 94,521 on the first route) |
+| **Formal equivalence** | **PASS** — RTL → scan netlist → post-route netlist (Conformal LEC) |
+
+**Technology:** ASAP7 asap7sc7p5t_28 (7 nm predictive PDK, RVT/LVT/SLVT)
+
+**Tools:** Cadence Genus 25.1, Cadence Innovus 25.1, Cadence Conformal LEC 25.2, ModelSim
+
 <img width="1146" height="1125" alt="image" src="https://github.com/user-attachments/assets/58032f68-d79d-4e75-a9bb-fbfecd58e390" />
 
 ---
@@ -41,7 +61,9 @@ GDSII export.
 5. [Physical Design](#5-physical-design)
 6. [Timing Closure](#6-timing-closure)
 7. [Verification](#7-verification)
-8. [Repository Structure](#8-repository-structure)
+8. [ASAP7 7 nm Implementation](#8-asap7-7-nm-implementation)
+9. [Design for Test (Scan)](#9-design-for-test-scan)
+10. [Repository Structure](#10-repository-structure)
 
 ---
 
@@ -523,7 +545,128 @@ the gscl45nm Verilog cell models.
 
 ---
 
-## 8. Repository Structure
+## 8. ASAP7 7 nm Implementation
+
+The same RTL was re-implemented on the **ASAP7** predictive 7 nm PDK. Synthesis used Genus;
+place-and-route used Innovus with the 4x-scaled LEF that ASAP7 provides (lengths ×4,
+areas ×16 relative to the real 7 nm geometry; timing and power are unaffected).
+
+### 8.1 Flow
+
+```
+Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded)
+  → Conformal LEC (RTL vs. netlist)
+  → Innovus import with MMMC: SS 0.63 V/100 °C, TT 0.7 V/25 °C, FF 0.77 V/0 °C
+     ±5% flat OCV derate, CPPR, SI-aware delay
+  → Floorplan (80% utilisation) → routing tracks → track-aligned I/O → well taps
+  → Power grid: M6/M5 ring, M1 follow-pin + M2 rails, M3–M6 straps
+  → Placement + tie cells + pre-CTS optimisation (HFNS)
+  → CTS (NDR trunks on M4–M5, RVT clock buffers) → post-CTS setup/hold optimisation
+  → NanoRoute (timing/SI-driven) → post-route optimisation
+  → Decap + filler → ECO route → DRC / connectivity → MCMM signoff → power
+```
+
+### 8.2 Results
+
+| Parameter | Value |
+|---|---|
+| Clock | 9.0 ns (111 MHz) |
+| Setup WNS | +0.096 ns (SS, TT, SS-shift views) |
+| Hold WNS | 0.000 ns, 0 violations (FF, FF-shift views) |
+| DRV (max cap / tran / fanout) | 0 |
+| Die (4x LEF) | 401.76 × 399.456 µm → **≈ 0.0100 mm² real** |
+| Standard-cell area (4x LEF) | 120,622 µm² → ≈ 7,539 µm² real |
+| Clock tree | 216 buffers, 32.1 ps skew, 178–211 ps insertion delay |
+| Routed wire / vias | 1.00 m (4x) / 534,119 |
+| DRC / connectivity | 0 violations / 0 opens |
+| Power (TT) | 2.167 mW: sequential 0.86, combinational 0.94, clock tree 0.37 |
+
+<img src="docs/asap7/placement.png" width="560" alt="ASAP7 placement coloured by module">
+
+<img src="docs/asap7/slack_hist.png" width="900" alt="Endpoint slack histograms">
+
+### 8.3 Routing DRC: 94,521 → 0
+
+The first full route produced 84,815 DRC violations (94,521 with via-in-pin enabled).
+Classifying them showed 43,628 **Cut_Enclosure** errors on V3/V5. The ASAP7 tech LEF defines
+those cut classes as rectangular but only provides end-of-line enclosure rules, which
+Innovus 25.1 ignores for rectangular cuts. Adding END/SIDE enclosure rules to a copy of the
+tech LEF dropped the count to 7. The remaining off-grid violations came from creating the
+routing tracks after pins and the power grid were placed; moving `add_tracks` directly after
+the floorplan, snapping pins and straps to the tracks, and spacing the ring so VDD/VSS centres
+land on the 0.192 µm pitch brought the design to **0 DRC**.
+
+<img src="docs/asap7/drc_journey.png" width="640" alt="DRC count by routing attempt">
+
+### 8.4 Comparison with the 45 nm Build
+
+| | 45 nm (gscl45nm) | 7 nm (ASAP7) |
+|---|---|---|
+| Frequency | 91 MHz | 111 MHz |
+| Die area | 0.454 mm² | ≈ 0.0100 mm² |
+| Power | 68.84 mW @ 1.1 V | 2.17 mW @ 0.7 V |
+
+The two libraries are not directly comparable (an academic 45 nm kit against an optimistic
+predictive 7 nm kit, with different switching-activity settings), so the ratios are an
+order-of-magnitude reference rather than a measured process gain. The critical path is the
+same in both nodes: the rename-recovery path ending in the free list.
+
+---
+
+## 9. Design for Test (Scan)
+
+### 9.1 Enabling Scan on ASAP7
+
+ASAP7's only asynchronous-reset flop (`DFFASRHQNx1`) has no scan equivalent, and its scan
+flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
+
+1. **Synchronous reset** — all nine synthesisable `always_ff` blocks changed from
+   `@(posedge clk or negedge resetn)` to `@(posedge clk)`; the reset logic itself is
+   unchanged. The 14-test regression still passes 75/75 with byte-identical logs.
+   (Branch `sync-reset`; the asynchronous version is tagged `v3.1-async-reset`.)
+2. **Liberty test models** — the ASAP7 libraries describe `SDFH` as a flop with a
+   three-input next-state function but omit the `test_cell` group, so synthesis cannot
+   recognise it as the scan version of `DFFHQN`. Adding `test_cell` groups (SI as
+   `test_scan_in`, SE as `test_scan_enable`, QN as `test_scan_out_inverted`) to a copy of
+   the libraries took the usable scan cells from 0 to 8 in an A/B test.
+
+### 9.2 Scan Insertion and Reordering
+
+| Item | Result |
+|---|---|
+| Style | Muxed-D scan, one shift-enable port (`scan_en`) |
+| Chains | 8 (`scan_in1–8` → `scan_out1–8`), 1,130–1,131 flops each |
+| Scan flops | 9,046 `SDFH`, 0 non-scan flops, 0 DFT rule violations |
+| Area vs. non-scan netlist | −1.8% (`SDFHx1` is smaller than the async set/reset flop) |
+| Scan reorder | Flop-to-flop wiring 275,641 → 78,365 µm (4x), **−72%** |
+| Test modes in P&R | Functional (`scan_en = 0`) and shift (`scan_en = 1`) MMMC views |
+
+<img src="docs/asap7/scan_reorder.png" width="900" alt="Scan chains before and after reorder">
+
+The shift mode exposed a classic scan hold race: one flop's `QN` fed the next flop's `SI`
+directly. A targeted repeater ECO on that `SI` pin closed it.
+
+### 9.3 Formal Equivalence
+
+| Check | Scope | Result |
+|---|---|---|
+| RTL → scan netlist | 9,175 compare points + 13 modules, `scan_en = 0` | **PASS** |
+| Scan netlist → post-route netlist | 9,175 compare points, scan outputs excluded (reordered) | **PASS** |
+
+The free-list module accounts for over 99% of the equivalence-checking runtime, the same
+structure that limits timing.
+
+### 9.4 Limitations
+
+- Physical checks use Innovus `verify_drc` / `verifyConnectivity`; no Calibre DRC/LVS deck
+  is available for ASAP7, and the LEF has no antenna data.
+- Scan chains are inserted and verified, but no ATPG patterns or fault coverage were
+  generated.
+- Power is vectorless (static, 0.2 input activity).
+
+---
+
+## 10. Repository Structure
 
 ```
 .
@@ -556,7 +699,13 @@ the gscl45nm Verilog cell models.
 | Branch | Memory architecture |
 |---|---|
 | `master` | Memory instantiated inside the top module |
-| `mem_out-v3` | Memory external to the chip, accessed through top-level ports — the configuration used for physical design |
+| `mem_out-v3` | Memory external to the chip, accessed through top-level ports — the configuration used for the 45 nm physical design |
+| `sync-reset` | `mem_out-v3` with all synthesisable flops converted to synchronous reset — the configuration used for the ASAP7 scan implementation |
+
+| Tag | Snapshot |
+|---|---|
+| `v1.1-portfolio` | Portfolio version |
+| `v3.1-async-reset` | External-memory version with asynchronous reset, before the `sync-reset` change |
 
 ---
 
