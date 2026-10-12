@@ -1,14 +1,12 @@
 # RISC-V (RV32I) Out-of-Order CPU with TAGE-SC-L Branch Predictor
 
 A superscalar-capable out-of-order RISC-V core featuring a three-tier **TAGE-SC-L** branch
-predictor (TAGE + Loop Predictor + Statistical Corrector), implemented twice:
+predictor (TAGE + Loop Predictor + Statistical Corrector), taken from RTL to signoff on the
+**ASAP7 7 nm** predictive PDK with **full-scan DFT**.
 
-- **45 nm (gscl45nm)** — RTL to DRC-clean GDSII: functional verification → logic synthesis →
-  gate-level simulation → place-and-route → timing closure → GDSII export.
-- **7 nm (ASAP7 predictive PDK)** — RTL to signoff with **full-scan DFT**: synchronous-reset
-  conversion → Liberty test-model fix-up → scan insertion → multi-mode, multi-corner
-  place-and-route with scan reordering → formal equivalence from RTL to the post-route netlist.
-  See [Section 8](#8-asap7-7-nm-implementation) and [Section 9](#9-design-for-test-scan).
+The project covers the complete digital design flow: RTL design → functional verification →
+logic synthesis → scan insertion → formal equivalence checking → multi-mode, multi-corner
+place-and-route with scan reordering → timing closure → DRC-clean signoff.
 
 ---
 
@@ -19,36 +17,21 @@ predictor (TAGE + Loop Predictor + Statistical Corrector), implemented twice:
 | **Branch accuracy** | **96.5%**|
 | **MPKI** | **11.9** (vs. 281.8 with no predictor) — **95.8% reduction** |
 | **Active IPC** | **0.492** (vs. 0.358) — **+37.4%** |
-| **Predictor cost** | **+10.4% area / +9.9% power / 0 MHz frequency penalty** |
-| **Efficiency** | **+24.5% IPC/mm², +25.0% IPC/mW** |
-| **Operating frequency** | **91 MHz** (11 ns, WNS +74 ps) |
-| **Die area** | **0.454 mm²** (675.45 × 672.60 µm) |
-| **Total power** | **68.84 mW** @ 1.1 V |
+| **Predictor cost** (synthesis study) | **+10.4% area / +9.9% power / 0 MHz frequency penalty** |
+| **Operating frequency** | **111 MHz** (9 ns), signed off at SS 0.63 V / 100 °C with ±5% OCV |
+| **Setup / hold WNS** | **+96 ps / ≥ 0** across SS, TT, FF and scan-shift modes |
+| **Die area** | **0.0100 mm²** (≈ 100 × 100 µm) |
+| **Total power** | **2.17 mW** @ 0.7 V (TT, 25 °C) |
+| **Scan** | **8 chains**, 9,046 scan flops, 0 DFT rule violations |
 | **DRC violations** | **0** |
+| **Formal equivalence** | **PASS** — RTL → scan netlist → post-route netlist |
 | **Functional verification** | **75/75 checks PASS** across 14 directed tests |
 
-**Technology:** gscl45nm (45 nm PDK)
-
-**Tools:** Cadence NCSim, Synopsys Design Compiler, Synopsys PrimeTime, Cadence Innovus 25.1
-
-### ASAP7 7 nm implementation (with scan DFT)
-
-| | Result |
-|---|---|
-| **Operating frequency** | **111 MHz** (9 ns), signed off at SS 0.63 V / 100 °C with ±5% OCV |
-| **Setup / hold WNS** | **+96 ps / ≥ 0** across SS, TT, FF and scan-shift modes, 0 DRV |
-| **Die area** | **0.0100 mm²** real (401.76 × 399.456 µm in the 4x-scaled LEF ÷ 16) |
-| **Total power** | **2.17 mW** (TT 0.7 V, 25 °C, static, 0.2 input activity) |
-| **Scan** | **8 chains × 1,130–1,131 flops** (9,046 scan flops), 0 DFT rule violations |
-| **Scan reorder** | Flop-to-flop scan wiring **−72%** after placement |
-| **DRC violations** | **0** (down from 94,521 on the first route) |
-| **Formal equivalence** | **PASS** — RTL → scan netlist → post-route netlist (Conformal LEC) |
-
-**Technology:** ASAP7 asap7sc7p5t_28 (7 nm predictive PDK, RVT/LVT/SLVT)
+**Technology:** ASAP7 asap7sc7p5t_28 (7 nm predictive PDK; RVT / LVT / SLVT)
 
 **Tools:** Cadence Genus 25.1, Cadence Innovus 25.1, Cadence Conformal LEC 25.2, ModelSim
 
-<img width="1146" height="1125" alt="image" src="https://github.com/user-attachments/assets/58032f68-d79d-4e75-a9bb-fbfecd58e390" />
+<img src="docs/asap7/asap7_final_layout.png" width="720" alt="Final routed layout on ASAP7">
 
 ---
 
@@ -61,9 +44,8 @@ predictor (TAGE + Loop Predictor + Statistical Corrector), implemented twice:
 5. [Physical Design](#5-physical-design)
 6. [Timing Closure](#6-timing-closure)
 7. [Verification](#7-verification)
-8. [ASAP7 7 nm Implementation](#8-asap7-7-nm-implementation)
-9. [Design for Test (Scan)](#9-design-for-test-scan)
-10. [Repository Structure](#10-repository-structure)
+8. [Design for Test (Scan)](#8-design-for-test-scan)
+9. [Repository Structure](#9-repository-structure)
 
 ---
 
@@ -271,8 +253,9 @@ principal contributor among the SC-L extensions.
 
 ## 4. PPA Trade-off Analysis
 
-All three predictor configurations were synthesised with Design Compiler under identical
-constraints (6.5 ns clock target, gscl45nm, typical corner). **All three met timing with
+This predictor-cost study was run at the synthesis level, before the physical implementation:
+all three predictor configurations were synthesised with Design Compiler under identical
+constraints (6.5 ns clock target, gscl45nm 45 nm library, typical corner). **All three met timing with
 zero slack violation**, which makes the deltas below a clean measurement of what the
 predictor costs.
 
@@ -351,153 +334,194 @@ entries can be updated at retire.
 
 ## 5. Physical Design
 
-Full place-and-route in Cadence Innovus 25.1, from netlist to DRC-clean layout.
+Full implementation on the **ASAP7** 7 nm predictive PDK: Genus synthesis, Innovus
+place-and-route, and Conformal LEC. ASAP7 ships a 4x-scaled LEF (lengths ×4, areas ×16) to
+work around tool grid limits; physical numbers below are converted back to real 7 nm
+dimensions unless marked "(4x)". Timing and power are unaffected by the scaling.
 
 ### 5.1 Flow
 
 ```
-Design Import (Verilog netlist + LEF + MMMC)
-  → Floorplan (1:1 aspect ratio, 70% target utilisation, 20 µm core margin)
-  → Power Planning (UPF power intent → ring → stripes)
-  → Placement (place_design with pre-place optimisation)
-  → Pre-CTS Optimisation
-  → Clock Tree Synthesis (CLKBUF1/2/3 + INVX1/2/4/8, useful skew enabled)
-  → Post-CTS Optimisation
-  → Routing (NanoRoute, timing-driven, metal1–metal10, 40 iterations)
-  → ECO Routing
-  → DRC Signoff → GDSII
+Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded) + scan insertion
+  → Conformal LEC (RTL vs. scan netlist)
+  → Innovus import with MMMC: SS 0.63 V/100 °C, TT 0.7 V/25 °C, FF 0.77 V/0 °C
+     ±5% flat OCV derate, CPPR, SI-aware delay; functional and scan-shift modes
+  → Floorplan (80% utilisation) → routing tracks → track-aligned I/O → well taps
+  → Power grid: M6/M5 ring, M1 follow-pin + M2 rails, M3–M6 straps
+  → Scan DEF → placement + scan reorder → tie cells → pre-CTS optimisation (HFNS)
+  → CTS (NDR trunks on M4–M5, RVT clock buffers) → post-CTS setup/hold optimisation
+  → NanoRoute (timing/SI-driven) → post-route optimisation → hold ECO
+  → Decap + filler → ECO route → DRC / connectivity → MCMM signoff → power
+  → Conformal LEC (scan netlist vs. post-route netlist)
 ```
 
 ### 5.2 Final Chip
 
 | Parameter | Value |
 |---|---|
-| Die size | 675.45 × 672.60 µm = **0.4543 mm²** |
-| Core size | 635.08 × 632.32 µm = **0.4016 mm²** |
-| Core utilisation | **71.42%** |
-| Placed instances | **95,753** |
-| Standard-cell area | **286,797 µm²** |
-| Flip-flops | **9,548** |
-| Metal layers | metal1 – metal10 |
-| Total wire length | **1,215,327 µm** |
-| Vias | **723,667** |
-| Routing overflow | **0.00% H / 0.00% V** |
+| Die size | 100.4 × 99.9 µm = **0.0100 mm²** (401.76 × 399.456 µm in 4x) |
+| Core utilisation | **80%** (target) |
+| Placed instances | **46,335** (excluding filler, decap and well-tap cells) |
+| Standard-cell area | **7,539 µm²** |
+| Flip-flops | **9,046** scan flops (`SDFH`) |
+| Clock buffers | **216** |
+| Metal layers used | M1 – M7 |
+| Total wire length | **250.5 mm** (1,001,889 µm in 4x) |
+| Vias | **534,119** |
+| Decap / filler cells | 1,527 / 47,039 |
+| I/O pins | 212 (195 functional + 17 scan), all track-aligned and legal |
 | **DRC violations** | **0** |
+| **Connectivity** | **0 opens** |
 
-<img width="1002" height="999" alt="image" src="https://github.com/user-attachments/assets/ff1652bc-1731-4160-8d13-9793df5a462e" />
-<img width="1146" height="1125" alt="image" src="https://github.com/user-attachments/assets/8352cd2a-dc2e-4f6b-8ede-2766b434c32f" />
-<img width="731" height="221" alt="image" src="https://github.com/user-attachments/assets/c97843da-59e3-49f0-96d5-6537e9d3ea23" />
+<img src="docs/asap7/placement.png" width="560" alt="Placement coloured by module">
+
+<img src="docs/asap7/asap7_route_detail.png" width="720" alt="Routing detail: cells, power rails and signal routes">
 
 ### 5.3 Power Distribution Network
 
-Defined via an **IEEE 1801 (UPF)** power intent file declaring a single power domain
-(`PD_TOP`) with `VDD`/`VSS` supply nets, then physically implemented as:
+| Element | Layer | Width (4x) | Notes |
+|---|---|---|---|
+| Core ring (top/bottom) | M6 | 2.176 µm | snapped to the routing grid |
+| Core ring (left/right) | M5 | 2.4 µm | VDD/VSS spacing 1.248 so both centres land on the 0.192 µm pitch |
+| Follow-pin rails | M1 + M2 | 0.072 µm | M2 rails overlay M1 inside the core |
+| Straps | M3 | 0.936 µm | 31.68 µm pitch, confined to the core |
+| Straps | M4 | 0.864 µm | 61.44 µm pitch, confined to the core |
+| Straps | M5 / M6 | 0.864 / 1.152 µm | tied to the ring |
 
-| Element | Layer | Width | Spacing | Pitch |
-|---|---|---|---|---|
-| Core ring (top/bottom) | metal3 (H) | 3 µm | 2 µm | — |
-| Core ring (left/right) | metal2 (V) | 3 µm | 2 µm | — |
-| Power stripes | metal3 (V) | 2 µm | 2 µm | 40 µm set-to-set |
+ASAP7's LEF58 rules constrain the grid: widths must come from the layer width table
+(pitch unit × (5 + 4n)), shapes must be rectangles, and wire centres must sit on routing
+tracks. Three iterations took the power-grid DRC count from over 1,000 to 128 to **0**: legal
+widths, rails that do not stack vias up to the ring, and per-layer stacked-via ranges.
 
-Layers follow the library's preferred routing directions, so the horizontal rings and
-vertical stripes intersect orthogonally and stitch into a grid through vias. **91,818
-cell power pins** were connected to the global supply nets.
+<img src="docs/asap7/asap7_pdn.png" width="640" alt="Power grid before placement">
 
-### 5.4 Clock Tree Synthesis
+### 5.4 Routing: 94,521 → 0 DRC Violations
+
+| Attempt | DRC violations |
+|---|---|
+| First full route | 84,815 |
+| With via-in-pin enabled | 94,521 |
+| Tech LEF enclosure fix | 7 |
+| After filler insertion | 101 |
+| Clean re-run with corrected flow order | **0** |
+
+43,628 of the violations were **Cut_Enclosure** errors on V3/V5. The ASAP7 tech LEF defines
+those cut classes as rectangular but only provides end-of-line enclosure rules, which
+Innovus 25.1 ignores for rectangular cuts. Adding END/SIDE enclosure rules to a copy of the
+tech LEF dropped the count to 7. The remaining off-grid violations came from creating the
+routing tracks after pins and the power grid were placed; moving `add_tracks` directly after
+the floorplan and snapping pins and straps to the tracks brought the design to **0 DRC**.
+
+<img src="docs/asap7/drc_journey.png" width="640" alt="DRC count by routing attempt">
+
+### 5.5 Clock Tree Synthesis
 
 | Parameter | Value |
 |---|---|
-| Clock sinks | 9,548 |
-| Buffer cells | CLKBUF1 / CLKBUF2 / CLKBUF3 |
-| Inverter cells | INVX1 / INVX2 / INVX4 / INVX8 |
-| Useful skew applied | 212 endpoints advanced by 300 ps |
+| Clock sinks | 9,046 |
+| Buffer cells | BUFx4 / BUFx6f / BUFx8 / BUFx12f (RVT) |
+| Inverter cells | CKINVDCx8 – CKINVDCx16 (RVT) |
+| Trunk routing | Non-default rule, double spacing, M4–M5 |
+| Clock buffers inserted | 216 |
+| Insertion delay (SS) | 178.5 – 210.6 ps |
+| Skew | **32.1 ps** |
 
-### 5.5 Area Breakdown by Module
+### 5.6 Area Breakdown by Module
 
 | Module | Instances | Area (µm²) | Share |
 |---|---|---|---|
-| `rename_stage` | 33,601 | 75,379.4 | **26.28%** |
-| `free_list` | 31,719 | 69,732.8 | 24.31% |
-| `rat` | 1,862 | 5,605.8 | 1.95% |
-| **`bpu`** (TAGE-SC-L) | 15,992 | 53,565.9 | **18.68%** |
-| `prf` | 15,395 | 49,740.6 | 17.34% |
-| `rob` | 13,465 | 47,002.3 | 16.39% |
-| `rs` | 7,006 | 26,362.0 | 9.19% |
-| `lsq` | 6,624 | 22,845.1 | 7.97% |
-| `alu` | 1,658 | 5,094.7 | 1.78% |
-| `arat` | 1,085 | 3,969.8 | 1.38% |
-| `fetch` | 261 | 1,109.4 | 0.39% |
-| `decode` | 277 | 941.9 | 0.33% |
-| **Total** | **95,753** | **286,797.2** | 100% |
+| **`bpu`** (TAGE-SC-L) | 9,665 | 1,681.5 | **22.30%** |
+| `prf` | 7,957 | 1,510.1 | 20.03% |
+| `rob` | 5,966 | 1,213.0 | 16.09% |
+| `rename_stage` | 10,135 | 1,063.2 | 14.10% |
+| ├ `free_list` | 8,839 | 877.5 | 11.64% |
+| └ `rat` | 1,283 | 184.5 | 2.45% |
+| `rs` | 4,653 | 895.2 | 11.87% |
+| `lsq` | 4,758 | 761.7 | 10.10% |
+| `alu` | 1,455 | 167.0 | 2.22% |
+| `arat` | 685 | 118.0 | 1.56% |
+| `fetch` | 262 | 35.7 | 0.47% |
+| `decode` | 232 | 27.3 | 0.36% |
+| top level (clock tree, buffers, ties) | 567 | 66.1 | 0.88% |
+| **Total** | **46,335** | **7,538.9** | 100% |
 
-The free-list dominates the floorplan at 24.31% of core area — and it is also the endpoint
-of the critical path. Area and timing pressure point at the same structure, which identifies
-rename recovery as the single highest-value target for further optimisation.
+### 5.7 Power Analysis
 
-### 5.6 Power Analysis
-
-Post-route power at 90.91 MHz, 1.1 V, 0.2 default switching activity:
+Post-route static power at 111 MHz, TT 0.7 V / 25 °C, 0.2 input switching activity:
 
 | Component | Power (mW) | Share |
 |---|---|---|
-| Internal | 43.51 | 63.20% |
-| Switching | 23.39 | 33.98% |
-| Leakage | 1.94 | 2.82% |
-| **Total** | **68.84** | 100% |
+| Internal | 0.987 | 45.5% |
+| Switching | 1.085 | 50.1% |
+| Leakage | 0.095 | 4.4% |
+| **Total** | **2.167** | 100% |
 
 | Group | Power (mW) | Share |
 |---|---|---|
-| Combinational | 41.40 | 60.14% |
-| Sequential | 27.44 | 39.86% |
+| Combinational | 0.938 | 43.3% |
+| Sequential | 0.860 | 39.7% |
+| Clock tree | 0.369 | 17.1% |
 
-Total switched capacitance **801 pF**; power density **151.5 mW/mm²**.
+The clock tree plus flip-flop internal power make up roughly 45% of the total, which makes
+clock gating the most effective next step for power.
 
 ---
 
 ## 6. Timing Closure
 
-### 6.1 Closure Progression
+### 6.1 Signoff Setup
 
-| Stage | Clock | WNS |
+| Item | Setting |
+|---|---|
+| Corners | SS 0.63 V / 100 °C (setup), FF 0.77 V / 0 °C (hold), TT 0.7 V / 25 °C (both) |
+| Modes | Functional (`scan_en = 0`) and scan shift (`scan_en = 1`) |
+| On-chip variation | Flat derate: late 1.05 / early 0.95, CPPR enabled |
+| Delay calculation | SI-aware, post-route parasitics from the ASAP7 QRC tech file |
+| Uncertainty | 50 ps setup / 10 ps hold |
+
+### 6.2 Closure Progression (9 ns)
+
+| Stage | Setup WNS | Hold WNS |
 |---|---|---|
-| Synthesis | 6.5 ns | MET |
-| Post-placement + opt | 6.5 ns | −1.577 ns |
-| Post-CTS | 6.5 ns | −2.592 ns |
-| Post-route | 9.0 ns | −4.499 ns |
-| Post-route | 15.0 ns | +3.957 ns |
-| Post-route | 12.0 ns | +1.074 ns |
-| **Post-route (final)** | **11.0 ns** | **+0.074 ns** |
+| Pre-placement | −3.747 ns | — |
+| Placement | −4.955 ns | — |
+| Pre-CTS optimisation | +0.005 ns | — |
+| CTS | −0.135 ns | −0.007 ns |
+| Post-CTS optimisation | +0.016 ns | −0.000 ns (1 shift path) |
+| Route | +0.091 ns | — |
+| Post-route optimisation | +0.096 ns | −0.000 ns (1 shift path) |
+| **Signoff (after hold ECO)** | **+0.096 ns** | **0.000 ns, 0 violations** |
 
-### 6.2 Finding the Maximum Frequency
+<img src="docs/asap7/timing_flow.png" width="860" alt="Setup WNS through the flow">
 
-Rather than shipping the first period that closed, the clock constraint was swept by binary
-search against the *same routed netlist* — changing only the SDC, since the netlist and
-parasitics are independent of the target period. This recovered the true frequency ceiling:
+The last hold violation was a scan-shift race: one flop's `QN` drove the next flop's `SI`
+directly (−0.031 ps). Post-route hold optimisation left it, so a targeted repeater ECO on the
+`SI` pin closed it.
 
-| Clock | Frequency | WNS |
+### 6.3 Endpoint Slack
+
+<img src="docs/asap7/slack_hist.png" width="900" alt="Endpoint slack histograms">
+
+| View | Endpoints | Worst slack |
 |---|---|---|
-| 15 ns | 66.7 MHz | +3.957 ns |
-| 12 ns | 83.3 MHz | +1.074 ns |
-| **11 ns** | **90.9 MHz** | **+0.074 ns** |
-| 9 ns | 111.1 MHz | −4.499 ns |
+| Setup, functional (SS) | 9,175 | +96.0 ps |
+| Hold, functional (FF) | 9,175 | +11.2 ps |
+| Hold, scan shift (FF) | 9,054 | +0.2 ps |
 
-The design closes at **11 ns / 91 MHz** — **36.4% faster** than the first conservative
-period that met timing, at zero additional design effort.
-
-### 6.3 The Limiting Path
+### 6.4 The Limiting Path
 
 ```
-rob/head_reg[0]                        (ROB head pointer)
-  → arat (recovery mux)                (architectural RAT recovery)
-    → rename_stage/u_free_list/FIFO_reg (physical register reclamation)
+rob/head_reg[2]                          (ROB head pointer)
+  → arat (recovery mux)                  (architectural RAT recovery)
+    → rename_stage/u_free_list/FIFO_reg[10][3]   arrival 8,810 ps at SS, slack +96 ps
 ```
 
 This is the **rename recovery path**: on retire, the ROB head releases a physical register,
-the ARAT updates the architectural mapping, and the free-list reclaims the tag — all
-combinationally within one cycle, spanning three modules. It is the critical path in every
-configuration built, and is independent of the branch predictor. The standard industrial
-remedy is to pipeline rename recovery across two cycles, trading one cycle of recovery
-latency for a substantially shorter combinational path.
+the ARAT updates the architectural mapping, and the free-list compaction loop reclaims the
+tag, all combinationally within one cycle. At the SS corner with OCV it needs nearly the full
+9 ns, which is why the design is signed off at 111 MHz. The same structure also dominates
+formal-verification runtime (Section 7.2). Pipelining rename recovery across two cycles is
+the clear next optimisation.
 
 ---
 
@@ -531,106 +555,37 @@ microarchitectural statistics: retired instructions, active cycles, branch count
 count, TAGE provider distribution, and Loop Predictor / Statistical Corrector override
 counts.
 
-### 7.2 Gate-Level Simulation
+### 7.2 Formal Equivalence (Conformal LEC)
 
-The post-synthesis netlist was simulated with SDF back-annotation on Cadence NCSim, using
-the gscl45nm Verilog cell models.
-
-| Check | Result |
-|---|---|
-| Netlist elaboration | 9,548 flip-flops + standard cells resolved |
-| Reset behaviour | All state initialised correctly |
-| X-propagation on chip outputs | **0 over 2,000 cycles** |
-| Program counter | Advanced normally throughout execution |
-
----
-
-## 8. ASAP7 7 nm Implementation
-
-The same RTL was re-implemented on the **ASAP7** predictive 7 nm PDK. Synthesis used Genus;
-place-and-route used Innovus with the 4x-scaled LEF that ASAP7 provides (lengths ×4,
-areas ×16 relative to the real 7 nm geometry; timing and power are unaffected).
-
-### 8.1 Flow
-
-```
-Genus synthesis (TT, RVT; fractional-drive cells and ICGs excluded)
-  → Conformal LEC (RTL vs. netlist)
-  → Innovus import with MMMC: SS 0.63 V/100 °C, TT 0.7 V/25 °C, FF 0.77 V/0 °C
-     ±5% flat OCV derate, CPPR, SI-aware delay
-  → Floorplan (80% utilisation) → routing tracks → track-aligned I/O → well taps
-  → Power grid: M6/M5 ring, M1 follow-pin + M2 rails, M3–M6 straps
-  → Placement + tie cells + pre-CTS optimisation (HFNS)
-  → CTS (NDR trunks on M4–M5, RVT clock buffers) → post-CTS setup/hold optimisation
-  → NanoRoute (timing/SI-driven) → post-route optimisation
-  → Decap + filler → ECO route → DRC / connectivity → MCMM signoff → power
-```
-
-### 8.2 Results
-
-| Parameter | Value |
-|---|---|
-| Clock | 9.0 ns (111 MHz) |
-| Setup WNS | +0.096 ns (SS, TT, SS-shift views) |
-| Hold WNS | 0.000 ns, 0 violations (FF, FF-shift views) |
-| DRV (max cap / tran / fanout) | 0 |
-| Die (4x LEF) | 401.76 × 399.456 µm → **≈ 0.0100 mm² real** |
-| Standard-cell area (4x LEF) | 120,622 µm² → ≈ 7,539 µm² real |
-| Clock tree | 216 buffers, 32.1 ps skew, 178–211 ps insertion delay |
-| Routed wire / vias | 1.00 m (4x) / 534,119 |
-| DRC / connectivity | 0 violations / 0 opens |
-| Power (TT) | 2.167 mW: sequential 0.86, combinational 0.94, clock tree 0.37 |
-
-<img src="docs/asap7/placement.png" width="560" alt="ASAP7 placement coloured by module">
-
-<img src="docs/asap7/slack_hist.png" width="900" alt="Endpoint slack histograms">
-
-### 8.3 Routing DRC: 94,521 → 0
-
-The first full route produced 84,815 DRC violations (94,521 with via-in-pin enabled).
-Classifying them showed 43,628 **Cut_Enclosure** errors on V3/V5. The ASAP7 tech LEF defines
-those cut classes as rectangular but only provides end-of-line enclosure rules, which
-Innovus 25.1 ignores for rectangular cuts. Adding END/SIDE enclosure rules to a copy of the
-tech LEF dropped the count to 7. The remaining off-grid violations came from creating the
-routing tracks after pins and the power grid were placed; moving `add_tracks` directly after
-the floorplan, snapping pins and straps to the tracks, and spacing the ring so VDD/VSS centres
-land on the 0.192 µm pitch brought the design to **0 DRC**.
-
-<img src="docs/asap7/drc_journey.png" width="640" alt="DRC count by routing attempt">
-
-### 8.4 Comparison with the 45 nm Build
-
-| | 45 nm (gscl45nm) | 7 nm (ASAP7) |
+| Check | Scope | Result |
 |---|---|---|
-| Frequency | 91 MHz | 111 MHz |
-| Die area | 0.454 mm² | ≈ 0.0100 mm² |
-| Power | 68.84 mW @ 1.1 V | 2.17 mW @ 0.7 V |
+| RTL → synthesised scan netlist | 9,175 compare points (129 outputs + 9,046 flops) and 13 modules, `scan_en = 0` | **PASS** |
+| Scan netlist → post-route netlist | 9,175 compare points, scan outputs excluded (reordered chains) | **PASS** |
 
-The two libraries are not directly comparable (an academic 45 nm kit against an optimistic
-predictive 7 nm kit, with different switching-activity settings), so the ratios are an
-order-of-magnitude reference rather than a measured process gain. The critical path is the
-same in both nodes: the rename-recovery path ending in the free list.
+Both checks report 0 non-equivalent and 0 aborted points. The flops removed by synthesis
+(sequential constants and merged registers) were proven correct against the RTL. The
+free-list module accounts for more than 99% of the equivalence-checking runtime.
 
 ---
 
-## 9. Design for Test (Scan)
+## 8. Design for Test (Scan)
 
-### 9.1 Enabling Scan on ASAP7
+### 8.1 Enabling Scan on ASAP7
 
 ASAP7's only asynchronous-reset flop (`DFFASRHQNx1`) has no scan equivalent, and its scan
 flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
 
 1. **Synchronous reset** — all nine synthesisable `always_ff` blocks changed from
    `@(posedge clk or negedge resetn)` to `@(posedge clk)`; the reset logic itself is
-   unchanged. The 14-test regression still passes 75/75 with byte-identical logs.
-   (Branch `sync-reset`; the asynchronous version is tagged `v3.1-async-reset`.)
+   unchanged. The 14-test regression still passes 75/75 with byte-identical logs
+   (branch `sync-reset`; the asynchronous version is tagged `v3.1-async-reset`).
 2. **Liberty test models** — the ASAP7 libraries describe `SDFH` as a flop with a
    three-input next-state function but omit the `test_cell` group, so synthesis cannot
    recognise it as the scan version of `DFFHQN`. Adding `test_cell` groups (SI as
    `test_scan_in`, SE as `test_scan_enable`, QN as `test_scan_out_inverted`) to a copy of
    the libraries took the usable scan cells from 0 to 8 in an A/B test.
 
-### 9.2 Scan Insertion and Reordering
+### 8.2 Scan Insertion and Reordering
 
 | Item | Result |
 |---|---|
@@ -638,35 +593,22 @@ flops (`SDFH`/`SDFL`) have no reset. Two changes made scan insertion possible:
 | Chains | 8 (`scan_in1–8` → `scan_out1–8`), 1,130–1,131 flops each |
 | Scan flops | 9,046 `SDFH`, 0 non-scan flops, 0 DFT rule violations |
 | Area vs. non-scan netlist | −1.8% (`SDFHx1` is smaller than the async set/reset flop) |
-| Scan reorder | Flop-to-flop wiring 275,641 → 78,365 µm (4x), **−72%** |
-| Test modes in P&R | Functional (`scan_en = 0`) and shift (`scan_en = 1`) MMMC views |
+| Scan reorder | Flop-to-flop scan wiring **−72%** after placement |
+| Test modes in P&R | Functional and scan-shift MMMC views |
 
 <img src="docs/asap7/scan_reorder.png" width="900" alt="Scan chains before and after reorder">
 
-The shift mode exposed a classic scan hold race: one flop's `QN` fed the next flop's `SI`
-directly. A targeted repeater ECO on that `SI` pin closed it.
-
-### 9.3 Formal Equivalence
-
-| Check | Scope | Result |
-|---|---|---|
-| RTL → scan netlist | 9,175 compare points + 13 modules, `scan_en = 0` | **PASS** |
-| Scan netlist → post-route netlist | 9,175 compare points, scan outputs excluded (reordered) | **PASS** |
-
-The free-list module accounts for over 99% of the equivalence-checking runtime, the same
-structure that limits timing.
-
-### 9.4 Limitations
+### 8.3 Limitations
 
 - Physical checks use Innovus `verify_drc` / `verifyConnectivity`; no Calibre DRC/LVS deck
   is available for ASAP7, and the LEF has no antenna data.
 - Scan chains are inserted and verified, but no ATPG patterns or fault coverage were
   generated.
-- Power is vectorless (static, 0.2 input activity).
+- Power is vectorless (static, 0.2 input activity); no IR-drop analysis.
 
 ---
 
-## 10. Repository Structure
+## 9. Repository Structure
 
 ```
 .
@@ -699,8 +641,8 @@ structure that limits timing.
 | Branch | Memory architecture |
 |---|---|
 | `master` | Memory instantiated inside the top module |
-| `mem_out-v3` | Memory external to the chip, accessed through top-level ports — the configuration used for the 45 nm physical design |
-| `sync-reset` | `mem_out-v3` with all synthesisable flops converted to synchronous reset — the configuration used for the ASAP7 scan implementation |
+| `mem_out-v3` | Memory external to the chip, accessed through top-level ports (asynchronous reset) |
+| `sync-reset` | `mem_out-v3` with all synthesisable flops converted to synchronous reset — the configuration used for the ASAP7 7 nm implementation |
 
 | Tag | Snapshot |
 |---|---|
